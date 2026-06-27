@@ -112,19 +112,19 @@ tr:hover{background:#1c2129;}
 <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
 <div style="text-align:center;min-width:80px;"><div style="font-size:40px;font-weight:700;" id="ts"></div><div style="font-size:12px;color:#8b949e;" id="tl"></div></div>
 <div style="flex:1;min-width:180px;"><table style="width:100%;table-layout:fixed;">
-<tr><th style="width:35%;text-align:left;">维度 <span style="font-size:10px;color:#8b949e;font-weight:400;">(ⓘ看说明)</span></th><th style="width:15%;text-align:center;">得分</th><th style="width:50%;text-align:center;">判断</th></tr>
-<tr><td style="text-align:left;white-space:nowrap;">📈 趋势 <span style="font-size:10px;color:#8b949e;cursor:help;" title="基于涨跌幅评分，涨幅大得分高，跌幅大得分低">ⓘ</span></td><td id="sc1" style="text-align:center;"></td><td id="sc1l" style="text-align:center;"></td></tr>
-<tr><td style="text-align:left;white-space:nowrap;">📊 量价 <span style="font-size:10px;color:#8b949e;cursor:help;" title="基于量比评分，量比高表示成交活跃，得分高">ⓘ</span></td><td id="sc2" style="text-align:center;"></td><td id="sc2l" style="text-align:center;"></td></tr>
-<tr><td style="text-align:left;white-space:nowrap;">💰 资金 <span style="font-size:10px;color:#8b949e;cursor:help;" title="基于外盘/内盘比，主动买盘占比越高得分越高">ⓘ</span></td><td id="sc3" style="text-align:center;"></td><td id="sc3l" style="text-align:center;"></td></tr>
-<tr><td style="text-align:left;white-space:nowrap;">🏛️ 大盘 <span style="font-size:10px;color:#8b949e;cursor:help;" title="基于个股涨跌幅与大盘对比，跑赢大盘得分高">ⓘ</span></td><td id="sc4" style="text-align:center;"></td><td id="sc4l" style="text-align:center;"></td></tr>
-<tr><td style="text-align:left;white-space:nowrap;">📋 盘口 <span style="font-size:10px;color:#8b949e;cursor:help;" title="五档买卖挂单比值，买盘挂单远大于卖盘则得分高">ⓘ</span></td><td id="sc5" style="text-align:center;"></td><td id="sc5l" style="text-align:center;"></td></tr>
-<tr><td style="text-align:left;white-space:nowrap;">📏 波动 <span style="font-size:10px;color:#8b949e;cursor:help;" title="日内振幅，波动越大T+0空间越大，得分越高">ⓘ</span></td><td id="sc6" style="text-align:center;"></td><td id="sc6l" style="text-align:center;"></td></tr>
-<tr><td style="text-align:left;white-space:nowrap;">🔄 换手 <span style="font-size:10px;color:#8b949e;cursor:help;" title="换手率越高表示交易越活跃，得分越高">ⓘ</span></td><td id="sc7" style="text-align:center;"></td><td id="sc7l" style="text-align:center;"></td></tr>
-<tr><td style="text-align:left;white-space:nowrap;">💹 估值 <span style="font-size:10px;color:#8b949e;cursor:help;" title="PE市盈率越低估值越便宜，得分越高">ⓘ</span></td><td id="sc8" style="text-align:center;"></td><td id="sc8l" style="text-align:center;"></td></tr>
-<tr><td style="text-align:left;white-space:nowrap;">📍 位置 <span style="font-size:10px;color:#8b949e;cursor:help;" title="价格在今日高低点区间中的分位，低位得分高">ⓘ</span></td><td id="sc9" style="text-align:center;"></td><td id="sc9l" style="text-align:center;"></td></tr>
-<tr><td style="text-align:left;white-space:nowrap;">📐 缺口 <span style="font-size:10px;color:#8b949e;cursor:help;" title="开盘跳空幅度，低开超卖得分高，高开追高风险大">ⓘ</span></td><td id="sc10" style="text-align:center;"></td><td id="sc10l" style="text-align:center;"></td></tr>
-<tr><td style="text-align:left;white-space:nowrap;">💵 成交额 <span style="font-size:10px;color:#8b949e;cursor:help;" title="成交额绝对值，成交额越大流动性越好得分越高">ⓘ</span></td><td id="sc11" style="text-align:center;"></td><td id="sc11l" style="text-align:center;"></td></tr>
-<tr><td style="text-align:left;white-space:nowrap;">⚖️ 均价 <span style="font-size:10px;color:#8b949e;cursor:help;" title="现价与均价(VWAP)的乖离率，低于均价得分高">ⓘ</span></td><td id="sc12" style="text-align:center;"></td><td id="sc12l" style="text-align:center;"></td></tr></table></div></div>
+<tr><th style="text-align:left;">维度</th><th style="text-align:center;width:36px;">分</th><th style="text-align:left;">依据</th><th style="text-align:center;">判断</th></tr>
+<tr><td style="text-align:left;">📈趋势</td><td id="sc1" style="text-align:center;"></td><td id="sc1b" style="font-size:10px;color:#8b949e;"></td><td id="sc1l" style="text-align:center;"></td></tr>
+<tr><td style="text-align:left;">📊量价</td><td id="sc2" style="text-align:center;"></td><td id="sc2b" style="font-size:10px;color:#8b949e;"></td><td id="sc2l" style="text-align:center;"></td></tr>
+<tr><td style="text-align:left;">💰资金</td><td id="sc3" style="text-align:center;"></td><td id="sc3b" style="font-size:10px;color:#8b949e;"></td><td id="sc3l" style="text-align:center;"></td></tr>
+<tr><td style="text-align:left;">🏛️大盘</td><td id="sc4" style="text-align:center;"></td><td id="sc4b" style="font-size:10px;color:#8b949e;"></td><td id="sc4l" style="text-align:center;"></td></tr>
+<tr><td style="text-align:left;">📋盘口</td><td id="sc5" style="text-align:center;"></td><td id="sc5b" style="font-size:10px;color:#8b949e;"></td><td id="sc5l" style="text-align:center;"></td></tr>
+<tr><td style="text-align:left;">📏波动</td><td id="sc6" style="text-align:center;"></td><td id="sc6b" style="font-size:10px;color:#8b949e;"></td><td id="sc6l" style="text-align:center;"></td></tr>
+<tr><td style="text-align:left;">🔄换手</td><td id="sc7" style="text-align:center;"></td><td id="sc7b" style="font-size:10px;color:#8b949e;"></td><td id="sc7l" style="text-align:center;"></td></tr>
+<tr><td style="text-align:left;">💹估值</td><td id="sc8" style="text-align:center;"></td><td id="sc8b" style="font-size:10px;color:#8b949e;"></td><td id="sc8l" style="text-align:center;"></td></tr>
+<tr><td style="text-align:left;">📍位置</td><td id="sc9" style="text-align:center;"></td><td id="sc9b" style="font-size:10px;color:#8b949e;"></td><td id="sc9l" style="text-align:center;"></td></tr>
+<tr><td style="text-align:left;">📐缺口</td><td id="sc10" style="text-align:center;"></td><td id="sc10b" style="font-size:10px;color:#8b949e;"></td><td id="sc10l" style="text-align:center;"></td></tr>
+<tr><td style="text-align:left;">💵成交额</td><td id="sc11" style="text-align:center;"></td><td id="sc11b" style="font-size:10px;color:#8b949e;"></td><td id="sc11l" style="text-align:center;"></td></tr>
+<tr><td style="text-align:left;">⚖️均价</td><td id="sc12" style="text-align:center;"></td><td id="sc12b" style="font-size:10px;color:#8b949e;"></td><td id="sc12l" style="text-align:center;"></td></tr></table></div></div>
 <div id="sug" style="margin-top:8px;padding:8px;background:#0d1117;border-radius:5px;font-size:12px;line-height:1.6;"></div></div></div>
 
 <div class="panel" id="pcap">
@@ -245,13 +245,17 @@ var s12=Math.min(100,Math.max(0,Math.round(vwapD<-1.5?75:vwapD<-0.5?65:vwapD<0.5
 var t=Math.round(s1*0.12+s2*0.1+s3*0.12+s4*0.08+s5*0.1+s6*0.08+s7*0.06+s8*0.06+s9*0.08+s10*0.06+s11*0.06+s12*0.08);
 
 // 渲染
-var factors=[['sc1','趋势',s1],['sc2','量价',s2],['sc3','资金',s3],['sc4','大盘',s4],
-  ['sc5','盘口',s5],['sc6','波动',s6],['sc7','换手',s7],['sc8','估值',s8],
-  ['sc9','位置',s9],['sc10','缺口',s10],['sc11','成交额',s11],['sc12','均价',s12]];
+var factors=[['sc1','趋势',s1,'涨幅'+cp.toFixed(2)+'%'],['sc2','量价',s2,'量比'+vr.toFixed(2)],
+  ['sc3','资金',s3,'外/内='+rr.toFixed(2)],['sc4','大盘',s4,'涨跌'+cp.toFixed(2)+'%'],
+  ['sc5','盘口',s5,'买卖比'+oRatio.toFixed(2)],['sc6','波动',s6,'振幅'+ampR.toFixed(1)+'%'],
+  ['sc7','换手',s7,'换手'+tr+'%'],['sc8','估值',s8,'PE='+(+p[39]||0)],
+  ['sc9','位置',s9,'分位'+posPct2.toFixed(0)+'%'],['sc10','缺口',s10,'跳空'+gapPct2.toFixed(2)+'%'],
+  ['sc11','成交额',s11,(am>10000?(am/10000).toFixed(2)+'亿':am.toFixed(0)+'万')],['sc12','均价',s12,'乖离'+vwapD.toFixed(2)+'%']];
 for(var _i=0;_i<factors.length;_i++){
-  var id=factors[_i][0],v=factors[_i][2];
+  var id=factors[_i][0],v=factors[_i][2],basis=factors[_i][3];
   document.getElementById(id).textContent=v;
   document.getElementById(id).style.color=v>=60?'#e74c3c':v<=40?'#3fb950':'#e6edf3';
+  document.getElementById(id+'b').textContent=basis;
   var lbl=document.getElementById(id+'l');
   if(v>=60)lbl.textContent='✅偏多';
   else if(v>=45)lbl.textContent='➖中性';
