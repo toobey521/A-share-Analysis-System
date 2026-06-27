@@ -604,21 +604,34 @@ function renderLHBAll(){
   document.getElementById('lhbAll').innerHTML=ul+'</table>';
 }
 
-function calcCap(p,pr,extVol,intVol,cp,am,op,hi,lo,vl,tr){
-try{
-  var buyAmt=extVol*pr*100,sellAmt=intVol*pr*100;
-  var netAmt=(extVol-intVol)*pr*100;
+function calcCap(p,pr){
+  var extVol=+p[7]||0,intVol=+p[8]||0;
+  var buyAmt=extVol*pr*100,sellAmt=intVol*pr*100; // 元
+  var netAmt=(extVol-intVol)*pr*100; // 净额 元
   var ratio=intVol>0?(extVol/intVol):0;
+  
+  // 尝试解析大单数据 (腾讯API扩展字段)
+  var lgBuy=+p[47]||0,lgSell=+p[48]||0; // 可能的大单数据(万元)
+  var mdBuy=+p[44]||0,mdSell=+p[43]||0; // 中单
+  var lgNet=lgBuy-lgSell;
+  
   var h='<div class=di><div class=l>主买金额</div><div class="v up">'+(buyAmt/1e8).toFixed(2)+'亿</div></div>';
-  h+='<div class=di><div class=l>外盘</div><div class="v up">'+(extVol/10000).toFixed(1)+'万手</div></div>';
-  h+='<div class=di><div class=l>净流入</div><div class="v '+(netAmt>=0?'up':'down')+'">'+(netAmt>=0?'+':'')+(netAmt/1e8).toFixed(2)+'亿</div></div>';
-  h+='<div class=di><div class=l>主卖金额</div><div class="v down">'+(sellAmt/1e8).toFixed(2)+'亿</div></div>';
-  h+='<div class=di><div class=l>内盘</div><div class="v down">'+(intVol/10000).toFixed(1)+'万手</div></div>';
-  h+='<div class=di><div class=l>买卖比</div><div class="v '+(ratio>=1?'up':'down')+'">'+ratio.toFixed(2)+'</div></div>';
+    h+='<div class=di><div class=l>外盘</div><div class="v up">'+(extVol/10000).toFixed(0)+'万手</div></div>';
+    h+='<div class=di><div class=l>净流入</div><div class="v '+(netAmt>=0?'up':'down')+'">'+(netAmt>=0?'+':'')+(netAmt/1e8).toFixed(2)+'亿</div></div>';
+    h+='<div class=di><div class=l>主卖金额</div><div class="v down">'+(sellAmt/1e8).toFixed(2)+'亿</div></div>';
+    h+='<div class=di><div class=l>内盘</div><div class="v down">'+(intVol/10000).toFixed(0)+'万手</div></div>';
+    h+='<div class=di><div class=l>买卖比</div><div class="v '+(ratio>=1?'up':'down')+'">'+ratio.toFixed(2)+'</div></div>';
   document.getElementById('capGrid').innerHTML=h;
-  document.getElementById('capInfo').textContent='主力'+(netAmt>0?'净买入 ':'净卖出 ')+(Math.abs(netAmt)/1e8).toFixed(2)+'亿 | 外盘'+(extVol/10000).toFixed(1)+'万手 vs 内盘'+(intVol/10000).toFixed(1)+'万手';
-}catch(e){document.getElementById('capInfo').textContent='资金加载错误: '+e.message;}
-}function showLHB(code,name){
+  
+  var info='📊 主力'+(netAmt>0?'净买入 ':'净卖出 ')+(Math.abs(netAmt)/1e8).toFixed(2)+'亿 | ';
+  info+='外盘'+(extVol/10000).toFixed(1)+'万手 vs 内盘'+(intVol/10000).toFixed(1)+'万手';
+  if(extVol>intVol*1.2)info+=' | 🔥买方主导';
+  else if(intVol>extVol*1.2)info+=' | ❄️卖方主导';
+  else info+=' | 📊多空均衡';
+  document.getElementById('capInfo').textContent=info;
+}
+
+function showLHB(code,name){
 var items=LHB_LIVE.length>0?LHB_LIVE.filter(function(i){return (i['代码']||i.code)===code;}):LHB.filter(function(i){return i.code===code;});
 document.getElementById('lhbt').innerHTML=' — '+name+'('+code+')';
 // 个股明细
