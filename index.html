@@ -52,6 +52,7 @@ tr:hover{background:#1c2129;}
 <button class="active" onclick="sw('t0')">⚡T+0分析</button>
 <button onclick="sw('tech')">📈技术面</button>
 <button onclick="sw('score')">🎯评分</button>
+<button onclick="sw('cap')">💰资金</button>
 <button onclick="sw('lhb')">🐯龙虎榜</button>
 <button onclick="sw('cmp')">📊大盘对比</button></div>
 
@@ -108,6 +109,12 @@ tr:hover{background:#1c2129;}
 <tr><td>资金</td><td id="sc3" style="text-align:center;"></td><td id="sc3l"></td></tr>
 <tr><td>大盘</td><td id="sc4" style="text-align:center;"></td><td id="sc4l"></td></tr></table></div></div>
 <div id="sug" style="margin-top:8px;padding:8px;background:#0d1117;border-radius:5px;font-size:12px;line-height:1.6;"></div></div></div>
+
+<div class="panel" id="pcap">
+<div class="card"><h2>💰 资金流向</h2>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;" id="capGrid"></div>
+<div id="capDetail" style="font-size:12px;"></div>
+<div class="di2" id="capInfo">📊 等待数据...</div></div></div>
 
 <div class="panel" id="plhb">
 <div class="card"><h2>🐯 龙虎榜 <span id="lhbt" style="font-size:11px;color:#8b949e;font-weight:400;"></span></h2>
@@ -180,6 +187,7 @@ document.getElementById('emo').textContent=rr>1.2?'🔥买方主动':rr>0.8?'�
 document.getElementById('emo').style.color=rr>1?'#f85149':'#3fb950';
 calcScore(cp,vr,tr,rr,pr,pre);
 showLHB(curCode,nm);
+calcCap(p,pr);
 calcT0(p,pr,pre,hi,lo,cp,vl,am,vr,tr,extVol,intVol);}
 
 function calcScore(cp,vr,tr,rr,pr,pre){
@@ -297,6 +305,33 @@ function renderLHBAll(){
   document.getElementById('lhbAll').innerHTML=ul+'</table>';
 }
 
+function calcCap(p,pr){
+  var extVol=+p[7]||0,intVol=+p[8]||0;
+  var buyAmt=extVol*pr*100,sellAmt=intVol*pr*100; // 元
+  var netAmt=(extVol-intVol)*pr*100; // 净额 元
+  var ratio=intVol>0?(extVol/intVol):0;
+  
+  // 尝试解析大单数据 (腾讯API扩展字段)
+  var lgBuy=+p[47]||0,lgSell=+p[48]||0; // 可能的大单数据(万元)
+  var mdBuy=+p[44]||0,mdSell=+p[43]||0; // 中单
+  var lgNet=lgBuy-lgSell;
+  
+  var h='<div class=di><div class=l>主买金额</div><div class="v up">'+(buyAmt/1e8).toFixed(2)+'亿</div></div>';
+  h+='<div class=di><div class=l>主卖金额</div><div class="v down">'+(sellAmt/1e8).toFixed(2)+'亿</div></div>';
+  h+='<div class=di><div class=l>净流入</div><div class="v '+(netAmt>=0?'up':'down')+'">'+(netAmt>=0?'+':'')+(netAmt/1e8).toFixed(2)+'亿</div></div>';
+  h+='<div class=di><div class=l>外盘</div><div class="v up">'+(extVol/10000).toFixed(0)+'万手</div></div>';
+  h+='<div class=di><div class=l>内盘</div><div class="v down">'+(intVol/10000).toFixed(0)+'万手</div></div>';
+  h+='<div class=di><div class=l>买卖比</div><div class="v '+(ratio>=1?'up':'down')+'">'+ratio.toFixed(2)+'</div></div>';
+  document.getElementById('capGrid').innerHTML=h;
+  
+  var info='📊 主力'+(netAmt>0?'净买入 ':'净卖出 ')+(Math.abs(netAmt)/1e8).toFixed(2)+'亿 | ';
+  info+='外盘'+(extVol/10000).toFixed(1)+'万手 vs 内盘'+(intVol/10000).toFixed(1)+'万手';
+  if(extVol>intVol*1.2)info+=' | 🔥买方主导';
+  else if(intVol>extVol*1.2)info+=' | ❄️卖方主导';
+  else info+=' | 📊多空均衡';
+  document.getElementById('capInfo').textContent=info;
+}
+
 function showLHB(code,name){
 var items=LHB_LIVE.length>0?LHB_LIVE.filter(function(i){return (i['代码']||i.code)===code;}):LHB.filter(function(i){return i.code===code;});
 document.getElementById('lhbt').innerHTML=' — '+name+'('+code+')';
@@ -392,7 +427,7 @@ document.getElementById('idxg').innerHTML=h;},300);};document.head.appendChild(s
 function sw(n){document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
 document.getElementById('p'+n).classList.add('active');
 document.querySelectorAll('.nav button').forEach(function(b){b.classList.remove('active');});
-var idx={'t0':0,'tech':1,'score':2,'lhb':3,'cmp':4};
+var idx={'t0':0,'tech':1,'score':2,'cap':3,'lhb':4,'cmp':5};
 if(document.querySelectorAll('.nav button')[idx[n]])document.querySelectorAll('.nav button')[idx[n]].classList.add('active');}
 
 search();loadIdx();setTimeout(fetchLiveLHB,2000);setInterval(function(){loadRT(curCode);},30000);
