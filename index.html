@@ -273,16 +273,18 @@ document.getElementById('t0levels').innerHTML='<b>支撑位:</b> '+support1.toFi
 var LHB_LIVE=[];
 
 function fetchLiveLHB(){
-  // Try local data service
   var url='http://localhost:9878/api/lhb';
   fetch(url).then(function(r){return r.json();}).then(function(j){
     if(j.ok&&j.data&&j.data.length>0){
-      LHB_LIVE=j.data;
-      // Update the all list display
-      renderLHBAll();
-      document.getElementById('lhbt').textContent=' — 实时数据 '+j.date;
+      LHB_LIVE=j.data;renderLHBAll();
+      document.getElementById('lhbStatus').textContent='实时 '+j.date;
+      if(curCode)showLHB(curCode,curName||'');
     }
-  }).catch(function(){});
+  }).catch(function(){
+    LHB_LIVE=[]; // fallback to static
+    renderLHBAll();
+    document.getElementById('lhbStatus').textContent='';
+  });
 }
 
 function renderLHBAll(){
@@ -298,7 +300,7 @@ function renderLHBAll(){
 }
 
 function showLHB(code,name){
-var items=LHB_LIVE.length>0?LHB_LIVE.filter(function(i){return (i['代码']||i.code)===code;}):LHB.filter(function(i){return i.code===code;});
+var items=LHB_LIVE.length>0?LHB_LIVE.filter(function(i){return String(i['代码']||i.code)===String(code);}):LHB.filter(function(i){return i.code===code;});
 document.getElementById('lhbt').innerHTML=' — '+name+'('+code+') <span style="color:#8b949e;font-size:11px;margin-left:6px" id="lhbStatus">加载中...</span>';
 // 个股明细
 if(items.length===0){
