@@ -112,19 +112,19 @@ tr:hover{background:#1c2129;}
 <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
 <div style="text-align:center;min-width:80px;"><div style="font-size:40px;font-weight:700;" id="ts"></div><div style="font-size:12px;color:#8b949e;" id="tl"></div></div>
 <div style="flex:1;min-width:180px;"><table style="width:100%;table-layout:fixed;">
-<tr><th style="width:35%;text-align:left;">维度</th><th style="width:25%;text-align:center;">得分</th><th style="width:40%;text-align:center;">判断</th></tr>
-<tr><td>📈 趋势</td><td id="sc1" style="text-align:center;"></td><td id="sc1l"></td></tr>
-<tr><td>📊 量价</td><td id="sc2" style="text-align:center;"></td><td id="sc2l"></td></tr>
-<tr><td>💰 资金</td><td id="sc3" style="text-align:center;"></td><td id="sc3l"></td></tr>
-<tr><td>🏛️ 大盘</td><td id="sc4" style="text-align:center;"></td><td id="sc4l"></td></tr>
-<tr><td>📋 盘口</td><td id="sc5" style="text-align:center;"></td><td id="sc5l"></td></tr>
-<tr><td>📏 波动</td><td id="sc6" style="text-align:center;"></td><td id="sc6l"></td></tr>
-<tr><td>🔄 换手</td><td id="sc7" style="text-align:center;"></td><td id="sc7l"></td></tr>
-<tr><td>💹 估值</td><td id="sc8" style="text-align:center;"></td><td id="sc8l"></td></tr>
-<tr><td>📍 位置</td><td id="sc9" style="text-align:center;"></td><td id="sc9l"></td></tr>
-<tr><td>📐 缺口</td><td id="sc10" style="text-align:center;"></td><td id="sc10l"></td></tr>
-<tr><td>💵 成交额</td><td id="sc11" style="text-align:center;"></td><td id="sc11l"></td></tr>
-<tr><td>⚖️ 均价</td><td id="sc12" style="text-align:center;"></td><td id="sc12l"></td></tr></table></div></div>
+<tr><th style="width:35%;text-align:left;">维度 <span style="font-size:10px;color:#8b949e;font-weight:400;">(ⓘ看说明)</span></th><th style="width:15%;text-align:center;">得分</th><th style="width:50%;text-align:center;">判断</th></tr>
+<tr><td style="text-align:left;white-space:nowrap;">📈 趋势 <span style="font-size:10px;color:#8b949e;cursor:help;" title="基于涨跌幅评分，涨幅大得分高，跌幅大得分低">ⓘ</span></td><td id="sc1" style="text-align:center;"></td><td id="sc1l" style="text-align:center;"></td></tr>
+<tr><td style="text-align:left;white-space:nowrap;">📊 量价 <span style="font-size:10px;color:#8b949e;cursor:help;" title="基于量比评分，量比高表示成交活跃，得分高">ⓘ</span></td><td id="sc2" style="text-align:center;"></td><td id="sc2l" style="text-align:center;"></td></tr>
+<tr><td style="text-align:left;white-space:nowrap;">💰 资金 <span style="font-size:10px;color:#8b949e;cursor:help;" title="基于外盘/内盘比，主动买盘占比越高得分越高">ⓘ</span></td><td id="sc3" style="text-align:center;"></td><td id="sc3l" style="text-align:center;"></td></tr>
+<tr><td style="text-align:left;white-space:nowrap;">🏛️ 大盘 <span style="font-size:10px;color:#8b949e;cursor:help;" title="基于个股涨跌幅与大盘对比，跑赢大盘得分高">ⓘ</span></td><td id="sc4" style="text-align:center;"></td><td id="sc4l" style="text-align:center;"></td></tr>
+<tr><td style="text-align:left;white-space:nowrap;">📋 盘口 <span style="font-size:10px;color:#8b949e;cursor:help;" title="五档买卖挂单比值，买盘挂单远大于卖盘则得分高">ⓘ</span></td><td id="sc5" style="text-align:center;"></td><td id="sc5l" style="text-align:center;"></td></tr>
+<tr><td style="text-align:left;white-space:nowrap;">📏 波动 <span style="font-size:10px;color:#8b949e;cursor:help;" title="日内振幅，波动越大T+0空间越大，得分越高">ⓘ</span></td><td id="sc6" style="text-align:center;"></td><td id="sc6l" style="text-align:center;"></td></tr>
+<tr><td style="text-align:left;white-space:nowrap;">🔄 换手 <span style="font-size:10px;color:#8b949e;cursor:help;" title="换手率越高表示交易越活跃，得分越高">ⓘ</span></td><td id="sc7" style="text-align:center;"></td><td id="sc7l" style="text-align:center;"></td></tr>
+<tr><td style="text-align:left;white-space:nowrap;">💹 估值 <span style="font-size:10px;color:#8b949e;cursor:help;" title="PE市盈率越低估值越便宜，得分越高">ⓘ</span></td><td id="sc8" style="text-align:center;"></td><td id="sc8l" style="text-align:center;"></td></tr>
+<tr><td style="text-align:left;white-space:nowrap;">📍 位置 <span style="font-size:10px;color:#8b949e;cursor:help;" title="价格在今日高低点区间中的分位，低位得分高">ⓘ</span></td><td id="sc9" style="text-align:center;"></td><td id="sc9l" style="text-align:center;"></td></tr>
+<tr><td style="text-align:left;white-space:nowrap;">📐 缺口 <span style="font-size:10px;color:#8b949e;cursor:help;" title="开盘跳空幅度，低开超卖得分高，高开追高风险大">ⓘ</span></td><td id="sc10" style="text-align:center;"></td><td id="sc10l" style="text-align:center;"></td></tr>
+<tr><td style="text-align:left;white-space:nowrap;">💵 成交额 <span style="font-size:10px;color:#8b949e;cursor:help;" title="成交额绝对值，成交额越大流动性越好得分越高">ⓘ</span></td><td id="sc11" style="text-align:center;"></td><td id="sc11l" style="text-align:center;"></td></tr>
+<tr><td style="text-align:left;white-space:nowrap;">⚖️ 均价 <span style="font-size:10px;color:#8b949e;cursor:help;" title="现价与均价(VWAP)的乖离率，低于均价得分高">ⓘ</span></td><td id="sc12" style="text-align:center;"></td><td id="sc12l" style="text-align:center;"></td></tr></table></div></div>
 <div id="sug" style="margin-top:8px;padding:8px;background:#0d1117;border-radius:5px;font-size:12px;line-height:1.6;"></div></div></div>
 
 <div class="panel" id="pcap">
