@@ -194,7 +194,7 @@ document.getElementById('sc2l').textContent=s2>=60?'📊活跃':'📉缩量';
 document.getElementById('sc3l').textContent=s3>=60?'🔥强':'❄️弱';
 document.getElementById('sc4l').textContent=s4>=60?'📈偏强':'📉偏弱';
 for(var _i2=0,_a2=['sc1l','sc2l','sc3l','sc4l'];_i2<_a2.length;_i2++){var txt=document.getElementById(_a2[_i2]).textContent;document.getElementById(_a2[_i2]).style.color=/(强|活跃|偏强)/.test(txt)?'#f85149':'#3fb950';}
-document.getElementById('ts').textContent=t;document.getElementById('ts').style.color=t>=60?'#f85149':t<=40?'#3fb950':'#e6edf3';
+document.getElementById('ts').textContent=t;document.getElementById('ts').style.color=t>=60?'#e74c3c':t<=40?'#3fb950':'#e6edf3';
 document.getElementById('tl').textContent=t>=60?'偏多':t<=40?'偏空':'中性';
 if(t>=70)document.getElementById('sug').innerHTML='📈 整体偏多，趋势强势。短线注意前高压力，中线关注中报。';
 else if(t>=50)document.getElementById('sug').innerHTML='📊 中性偏多，短期涨幅较大有回调需求，不追高。';
