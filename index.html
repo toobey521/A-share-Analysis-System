@@ -302,18 +302,18 @@ function renderLHBAll(){
 function showLHB(code,name){
 document.getElementById('lhbt').innerHTML=' — '+name+'('+code+')';
 // ===== 尝试从本地服务获取实时数据 =====
-fetch('http://localhost:9890/api/lhb/detail?code='+code).then(function(r){return r.json();}).then(function(j){
+fetch('http://localhost:9891/api/lhb/detail?code='+code).then(function(r){return r.json();}).then(function(j){
   if(j.ok&&j.buy&&j.buy.length>0){
     var h='<div style="margin-bottom:4px;font-size:11px;color:#8b949e">📡 东方财富实时数据</div>';
     h+='<div style=background:#0d1117;padding:8px;border-radius:5px;margin-bottom:6px><div style=font-size:12px;color:#e74c3c;margin-bottom:4px;>📥 买入前5</div><table><tr><th>#</th><th>营业部</th><th>买入额</th><th>卖出额</th><th>净额</th></tr>';
     j.buy.forEach(function(r){
-      var a=(+r.买入额/1e8).toFixed(2),s=(+r.卖出额/1e8).toFixed(2),n=(+r.净额/1e8).toFixed(2);
-      h+='<tr><td>'+r.序号+'</td><td style=max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; title='+r.营业部+'>'+r.营业部+'</td><td style=color:#e74c3c>'+a+'亿</td><td style=color:#3fb950>'+s+'亿</td><td class='+(n>=0?'up':'down')+'>'+n+'亿</td></tr>';
+      var a=(+r.BUY/1e8).toFixed(2),s=(+r.SELL/1e8).toFixed(2),n=(+r.NET/1e8).toFixed(2);
+      h+='<tr><td>'+r.序号+'</td><td style=max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; title='+(r.营业部||r.OPERATEDEPT_NAME)+'>'+(r.营业部||r.OPERATEDEPT_NAME)+'</td><td style=color:#e74c3c>'+a+'亿</td><td style=color:#3fb950>'+s+'亿</td><td class='+(n>=0?'up':'down')+'>'+n+'亿</td></tr>';
     });
     h+='</table></div><div style=background:#0d1117;padding:8px;border-radius:5px;margin-bottom:6px><div style=font-size:12px;color:#3fb950;margin-bottom:4px;>📤 卖出前5</div><table><tr><th>#</th><th>营业部</th><th>买入额</th><th>卖出额</th><th>净额</th></tr>';
     j.sell.forEach(function(r){
-      var a=(+r.买入额/1e8).toFixed(2),s=(+r.卖出额/1e8).toFixed(2),n=(+r.净额/1e8).toFixed(2);
-      h+='<tr><td>'+r.序号+'</td><td style=max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; title='+r.营业部+'>'+r.营业部+'</td><td style=color:#e74c3c>'+a+'亿</td><td style=color:#3fb950>'+s+'亿</td><td class='+(n>=0?'up':'down')+'>'+n+'亿</td></tr>';
+      var a=(+r.BUY/1e8).toFixed(2),s=(+r.SELL/1e8).toFixed(2),n=(+r.NET/1e8).toFixed(2);
+      h+='<tr><td>'+r.序号+'</td><td style=max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; title='+(r.营业部||r.OPERATEDEPT_NAME)+'>'+(r.营业部||r.OPERATEDEPT_NAME)+'</td><td style=color:#e74c3c>'+a+'亿</td><td style=color:#3fb950>'+s+'亿</td><td class='+(n>=0?'up':'down')+'>'+n+'亿</td></tr>';
     });
     h+='</table></div>';
     document.getElementById('lhbdata').innerHTML=h;
