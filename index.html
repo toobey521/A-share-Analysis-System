@@ -133,7 +133,12 @@ tr:hover{background:#1c2129;}
 <div id="capDetail" style="font-size:12px;"></div>
 <div class="di2" id="capInfo">📊 等待数据...</div></div></div>
 
-id="pcmp">
+<div class="panel" id="plhb">
+<div class="card"><h2>🐯 龙虎榜 <span id="lhbt" style="font-size:11px;color:#8b949e;font-weight:400;"></span></h2>
+<div id="lhbdata"></div><div class="di2">📅 2026-06-23~06-25（210条）</div></div>
+<div class="card"><h2>📋 全部龙虎榜</h2><div style="max-height:380px;overflow-y:auto;" id="lhbAll"></div></div></div>
+
+<div class="panel" id="pcmp">
 <div class="card"><h2>📊 沪深300 vs 本股</h2>
 <div id="cmpInfo" style="font-size:12px;color:#8b949e;margin-bottom:8px;">加载对比数据...</div>
 <div class="dg" style="grid-template-columns:repeat(3,1fr);" id="cmpData"></div></div>
@@ -574,7 +579,30 @@ document.getElementById('t0levels').innerHTML='<b>支撑:</b> '+s1.toFixed(2)+'(
 '<b>开盘:</b> '+op.toFixed(2)+' | <b>缺口:</b> '+gapPct.toFixed(2)+'% | <b>ATR:</b> '+atr.toFixed(2);
 }var LHB_LIVE=[];
 
+function fetchLiveLHB(){
+  // Try local data service
+  var url='http://localhost:9878/api/lhb';
+  fetch(url).then(function(r){return r.json();}).then(function(j){
+    if(j.ok&&j.data&&j.data.length>0){
+      LHB_LIVE=j.data;
+      // Update the all list display
+      renderLHBAll();
+      document.getElementById('lhbt').textContent=' — 实时数据 '+j.date;
+    }
+  }).catch(function(){});
+}
 
+function renderLHBAll(){
+  var data=(LHB_LIVE.length>0?LHB_LIVE:LHB);
+  var ul='<table><tr><th>代码</th><th>名称</th><th>解读</th><th>净额</th><th>方向</th></tr>';
+  data.forEach(function(i){
+    var code=i.code||i['代码'],name=i.name||i['名称'],desc=i.desc||i['解读'],net=i.net||i['龙虎榜净买额']||0;
+    var b=desc.includes('买入')||desc.includes('主买'),s=desc.includes('卖出')||desc.includes('主卖');
+    var hl=(code===curCode)?'style=background:#1f6feb22;':'';
+    ul+='<tr '+hl+'><td>'+code+'</td><td>'+name+'</td><td>'+desc+'</td><td class='+(net>0?'up':'down')+'>'+(net>0?'+':'')+(net/10000).toFixed(0)+'万</td><td class='+(b?'up':s?'down':'')+'>'+(b?'📥':s?'📤':'🔄')+'</td></tr>';
+  });
+  document.getElementById('lhbAll').innerHTML=ul+'</table>';
+}
 
 function calcCap(p,pr){
   var extVol=+p[7]||0,intVol=+p[8]||0;
@@ -698,7 +726,7 @@ document.getElementById('idxg').innerHTML=h;},300);};document.head.appendChild(s
 function sw(n){document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
 document.getElementById('p'+n).classList.add('active');
 document.querySelectorAll('.nav button').forEach(function(b){b.classList.remove('active');});
-var idx={'t0':0,'tech':1,'score':2,'cap':3,'cmp':4};
+var idx={'t0':0,'tech':1,'score':2,'cap':3,'lhb':4,'cmp':5};
 if(document.querySelectorAll('.nav button')[idx[n]])document.querySelectorAll('.nav button')[idx[n]].classList.add('active');}
 
 search();loadIdx();setTimeout(fetchLiveLHB,2000);setInterval(function(){loadRT(curCode);},30000);
