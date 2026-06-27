@@ -210,92 +210,217 @@ else document.getElementById('sug').innerHTML='📉 偏空，建议观望。';}
 
 // ===== 日内做T分析 =====
 function calcT0(p,pr,pre,hi,lo,cp,vl,am,vr,tr,extVol,intVol){
-var op=+p[5]||0;
+var op=+p[5]||0,now=new Date();
+var mins=now.getHours()*60+now.getMinutes();
+
+// ===== 1. 分时位置 (0~20分) =====
 var range=hi-lo||0.01;
 var posPct=(pr-lo)/range*100;
-var posScore=posPct<25?25:posPct<40?15:posPct<60?0:posPct<75?-15:-25;
+var posScore=0;
+if(posPct<20)posScore=20;      // 极低位，强正T买点
+else if(posPct<35)posScore=14; // 低位，适合正T
+else if(posPct<50)posScore=6;  // 中偏低
+else if(posPct<65)posScore=-4; // 中偏高
+else if(posPct<80)posScore=-12;// 高位，适合反T
+else posScore=-20;              // 极高，强反T卖点
+
+// ===== 2. 均价偏离 (0~15分) =====
+var estVWAP=(op+hi+lo+pr)/4;
+var vwapDev=(pr-estVWAP)/estVWAP*100;
+var vwapScore=0;
+if(vwapDev<-2)vwapScore=15;      // 大幅低于均价，低吸良机
+else if(vwapDev<-1.2)vwapScore=10;
+else if(vwapDev<-0.5)vwapScore=5;
+else if(vwapDev<0.5)vwapScore=0; // 均价附近
+else if(vwapDev<1.2)vwapScore=-6;
+else if(vwapDev<2)vwapScore=-10;
+else vwapScore=-15;               // 大幅高于均价，高抛良机
+
+// ===== 3. 涨跌幅动量 (0~15分) =====
+var cpScore=0;
+if(cp<-3)cpScore=15;       // 大跌，反弹预期强
+else if(cp<-2)cpScore=12;
+else if(cp<-1)cpScore=8;
+else if(cp<0)cpScore=4;    // 微跌
+else if(cp<1)cpScore=-2;   // 微涨
+else if(cp<2)cpScore=-8;
+else if(cp<3)cpScore=-12;
+else cpScore=-15;            // 大涨，回调风险大
+
+// ===== 4. 盘口委托强弱 (0~15分) =====
 var bVol=(+p[10]||0)+(+p[12]||0)+(+p[14]||0)+(+p[16]||0)+(+p[18]||0);
 var sVol=(+p[20]||0)+(+p[22]||0)+(+p[24]||0)+(+p[26]||0)+(+p[28]||0);
 var orderRatio=bVol/(sVol||1);
-var orderScore=orderRatio>3?20:orderRatio>2?15:orderRatio>1.3?10:orderRatio>0.7?0:orderRatio>0.5?-10:-20;
-var estVWAP=(op+hi+lo+pr)/4;
-var vwapDev=(pr-estVWAP)/estVWAP*100;
-var vwapScore=-Math.round(vwapDev*5);vwapScore=Math.max(-15,Math.min(15,vwapScore));
-var cpScore=cp>2?-15:cp>1?-8:cp>-0.5?5:cp>-1.5?10:15;
-var volRatio=extVol/(intVol||1);
-var volScore=vr>2&&volRatio>1.2?12:vr>1.5?8:vr>0.8?3:vr<0.5?-5:0;
-var total=posScore+orderScore+vwapScore+cpScore+volScore;
+var orderScore=0;
+if(orderRatio>3)orderScore=15;
+else if(orderRatio>2)orderScore=10;
+else if(orderRatio>1.3)orderScore=6;
+else if(orderRatio>0.7)orderScore=0;
+else if(orderRatio>0.5)orderScore=-6;
+else orderScore=-15;
 
-var signal,icon,label,bgColor;
-if(total>=15){signal='买入做T';icon='🔴';label='买入';bgColor='rgba(248,81,73,0.15)';}
-else if(total>=5){signal='关注买点';icon='📗';label='关注';bgColor='rgba(248,81,73,0.08)';}
-else if(total>=-5){signal='观望';icon='⏸️';label='观望';bgColor='rgba(139,148,158,0.1)';}
-else if(total>=-15){signal='关注卖点';icon='📕';label='关注';bgColor='rgba(63,185,80,0.08)';}
-else{signal='卖出做T';icon='🟢';label='卖出';bgColor='rgba(63,185,80,0.15)';}
+// ===== 5. 外盘内盘比 (0~10分) =====
+var actRatio=extVol/(intVol||1);
+var actScore=0;
+if(actRatio>1.5)actScore=10;
+else if(actRatio>1.2)actScore=6;
+else if(actRatio>0.8)actScore=0;
+else if(actRatio>0.5)actScore=-5;
+else actScore=-10;
 
-document.getElementById('t0time').textContent=new Date().toLocaleTimeString('zh-CN')+' | 总分:'+total;
+// ===== 6. 量能配合 (0~10分) =====
+var volScore=0;
+if(vr>2&&actRatio>1.2)volScore=10;     // 放量+主动买
+else if(vr>1.5&&actRatio>0.8)volScore=6;
+else if(vr>0.8&&actRatio>0.7)volScore=2;
+else if(vr<0.5&&actRatio<0.8)volScore=-5; // 缩量+主动卖
+else volScore=0;
+
+// ===== 7. 振幅/流动性 (0~10分) =====
+var ampRange=((hi-lo)/lo*100);
+var ampScore=0;
+if(ampRange>=4)ampScore=10;     // 大幅波动，T+0空间大
+else if(ampRange>=2.5)ampScore=6;
+else if(ampRange>=1.5)ampScore=3;
+else ampScore=0;                 // 波动太小，不适合T
+
+// ===== 8. 开盘结构 (0~5分) =====
+var openDev=(pr-op)/op*100;
+var openScore=0;
+if(cp<0&&openDev<0)openScore=5;     // 低开低走，超卖反弹可能
+else if(cp<0&&openDev>-1)openScore=3;
+else if(cp>0&&openDev>0)openScore=-3; // 高开高走，追高风险大
+else if(cp>0&&openDev>2)openScore=-5;
+else openScore=1;
+
+// ===== 9. 时间窗口 (0~5分, 扣分项) =====
+var timeScore=0;
+if(mins>=600&&mins<=620){timeScore=-10;}      // 9:30-9:35 竞价后不稳定
+else if(mins>=620&&mins<660)timeScore=3;       // 9:35-10:00 观察期
+else if(mins>=660&&mins<800)timeScore=10;      // 10:00-13:20 黄金窗口
+else if(mins>=800&&mins<870)timeScore=5;       // 13:20-14:30 稳定窗口
+else if(mins>=870&&mins<890)timeScore=-5;      // 14:30-14:50 只平仓
+else timeScore=-15;                              // 14:50后禁止新开
+
+// ===== 10. 委托差速 (0~5分) =====
+var orderDiff=bVol-sVol;
+var diffScore=0;
+if(orderDiff>500)diffScore=5;    // 买盘远超卖盘
+else if(orderDiff>200)diffScore=3;
+else if(orderDiff>-200)diffScore=0;
+else if(orderDiff>-500)diffScore=-3;
+else diffScore=-5;
+
+// ===== 总分 =====
+var rawTotal=posScore+vwapScore+cpScore+orderScore+actScore+volScore+ampScore+openScore+diffScore;
+var total=Math.max(-100,Math.min(100,rawTotal+timeScore));
+
+// ===== 信号生成 =====
+var signal,icon,label,bgColor,scoreColor;
+if(total>=40){signal='🔴 买入做T';icon='🔴';label='买入';bgColor='rgba(248,81,73,0.15)';scoreColor='#f85149';}
+else if(total>=20){signal='📗 关注买点';icon='📗';label='关注';bgColor='rgba(248,81,73,0.08)';scoreColor='#f85149';}
+else if(total>=-20){signal='⏸️ 观望';icon='⏸️';label='观望';bgColor='rgba(139,148,158,0.1)';scoreColor='#e6edf3';}
+else if(total>=-40){signal='📕 关注卖点';icon='📕';label='关注';bgColor='rgba(63,185,80,0.08)';scoreColor='#3fb950';}
+else{signal='🟢 卖出做T';icon='🟢';label='卖出';bgColor='rgba(63,185,80,0.15)';scoreColor='#3fb950';}
+
+// ===== 渲染 =====
+document.getElementById('t0time').textContent=new Date().toLocaleTimeString('zh-CN')+' 总分:'+total;
 var sigEl=document.getElementById('t0sig');
 sigEl.style.background=bgColor;
-sigEl.style.border='1px solid '+(total>=5?'#f85149':total<=-5?'#3fb950':'#30363d');
+sigEl.style.border='1px solid '+scoreColor;
 document.getElementById('t0icon').textContent=icon;
 document.getElementById('t0label').textContent=signal;
 
-document.getElementById('t0pos').textContent=posPct.toFixed(0)+'% (低→高)';
-document.getElementById('t0pos').style.color=posPct<40?'#f85149':posPct>60?'#3fb950':'#e6edf3';
+// 位置因子
+var posDesc='';
+if(posPct<20)posDesc='极低位🔥';
+else if(posPct<35)posDesc='低位📗';
+else if(posPct<50)posDesc='中偏低';
+else if(posPct<65)posDesc='中偏高';
+else if(posPct<80)posDesc='高位📕';
+else posDesc='极高位🟢';
+document.getElementById('t0pos').textContent=posPct.toFixed(0)+'% '+posDesc;
+document.getElementById('t0pos').style.color=posPct<35?'#f85149':posPct>65?'#3fb950':'#e6edf3';
 document.getElementById('t0p_score').textContent=(posScore>0?'+':'')+posScore;
 document.getElementById('t0p_score').style.color=posScore>0?'#f85149':'#3fb950';
-document.getElementById('t0order').textContent='买'+bVol+' / 卖'+sVol;
+
+// 盘口因子
+document.getElementById('t0order').textContent='买'+bVol.toLocaleString()+' / 卖'+sVol.toLocaleString()+' 比'+orderRatio.toFixed(2);
 document.getElementById('t0order').style.color=orderRatio>1?'#f85149':'#3fb950';
 document.getElementById('t0o_score').textContent=(orderScore>0?'+':'')+orderScore;
 document.getElementById('t0o_score').style.color=orderScore>0?'#f85149':'#3fb950';
-document.getElementById('t0vwap').textContent=vwapDev.toFixed(2)+'%';
+
+// 均价偏离
+document.getElementById('t0vwap').textContent=vwapDev.toFixed(2)+'%'+(vwapDev<-1?'🔽':vwapDev>1?'🔼':'');
 document.getElementById('t0vwap').style.color=vwapDev<0?'#f85149':'#3fb950';
 document.getElementById('t0v_score').textContent=(vwapScore>0?'+':'')+vwapScore;
 document.getElementById('t0v_score').style.color=vwapScore>0?'#f85149':'#3fb950';
+
+// 涨跌幅
 document.getElementById('t0mom').textContent=cp.toFixed(2)+'%';
-document.getElementById('t0mom').style.color=cp<0?'#f85149':cp>2?'#3fb950':'#e6edf3';
+document.getElementById('t0mom').style.color=cp<0?'#f85149':'#3fb950';
 document.getElementById('t0m_score').textContent=(cpScore>0?'+':'')+cpScore;
 document.getElementById('t0m_score').style.color=cpScore>0?'#f85149':'#3fb950';
-document.getElementById('t0vol').textContent='量比'+vr.toFixed(2)+' 外/内='+volRatio.toFixed(2);
-document.getElementById('t0vol').style.color=volRatio>1?'#f85149':'#3fb950';
+
+// 量能
+document.getElementById('t0vol').textContent='量比'+vr.toFixed(2)+' 外/'+intVol.toLocaleString()+'='+actRatio.toFixed(2);
+document.getElementById('t0vol').style.color=actRatio>1?'#f85149':'#3fb950';
 document.getElementById('t0vl_score').textContent=(volScore>0?'+':'')+volScore;
 document.getElementById('t0vl_score').style.color=volScore>0?'#f85149':'#3fb950';
 
+// 新增因子显示
+// 外盘内盘
+var actEl=document.getElementById('t0act')||document.createElement('span');
+// 委托差
+var diffEl=document.getElementById('t0diff')||document.createElement('span');
+// 振幅
+var ampEl=document.getElementById('t0amp')||document.createElement('span');
+// 时间
+var timeEl=document.getElementById('t0time_extra')||document.createElement('span');
+
+// ===== 动态建议 =====
 var advice='';
-if(total>=15){
+if(total>=40){
   var reasons=[];
-  if(posScore>=15)reasons.push('价格在区间低位');
+  if(posScore>=14)reasons.push('价格在区间低位');
+  if(vwapScore>=10)reasons.push('低于均价'+Math.abs(vwapDev).toFixed(1)+'%');
   if(orderScore>=10)reasons.push('盘口买盘偏强');
-  if(vwapScore>=8)reasons.push('价格低于均价');
-  if(cpScore>=10)reasons.push('跌幅较大有反弹预期');
-  if(volScore>=8)reasons.push('放量配合');
-  advice='🔴 买入做T。'+reasons.join('，')+'，可逢低建仓拉高卖出。';
-}else if(total>=5){
-  advice='📗 关注买点。信号偏多但不强，等待放量确认再入场。';
-}else if(total>=-5){
-  advice='⏸️ 观望。多空力量均衡，方向不明确，不建议操作。';
-}else if(total>=-15){
-  advice='📕 关注卖点。信号偏空但不强，有回落迹象可减仓，等低位接回。';
+  if(actScore>=6)reasons.push('主动买盘占比高');
+  if(volScore>=10)reasons.push('放量配合');
+  if(ampScore>=6)reasons.push('振幅'+ampRange.toFixed(1)+'%空间充足');
+  advice='🔴 买入做T。'+reasons.join('，')+'，可逢低吸纳拉高T出。';
+}else if(total>=20){
+  advice='📗 关注买点。信号偏多但不强，等放量或进一步下探确认。';
+}else if(total>=-20){
+  advice='⏸️ 观望。多空均衡方向不明。';
+}else if(total>=-40){
+  advice='📕 关注卖点。信号偏空但不强，有回落迹象可先减仓。';
 }else{
   var reasons=[];
-  if(posScore<=-15)reasons.push('价格在区间高位');
+  if(posScore<=-12)reasons.push('价格在区间高位');
+  if(vwapScore<=-10)reasons.push('高于均价'+Math.abs(vwapDev).toFixed(1)+'%');
   if(orderScore<=-10)reasons.push('盘口卖压偏重');
-  if(vwapScore<=-8)reasons.push('价格高于均价');
-  if(cpScore<=-8)reasons.push('涨幅较大有回落可能');
+  if(actScore<=-5)reasons.push('主动卖盘占比高');
   advice='🟢 卖出做T。'+reasons.join('，')+'，适合先卖后买。';
 }
+
+// 时间提醒
+if(mins>=870)advice+=' ⚠️14:30后建议只平仓不新开';
+if(mins>=890)advice+=' ⛔尾盘禁止新开T仓';
+
 document.getElementById('t0advice').innerHTML=advice;
 
-var support1=Math.round((lo*0.99)*100)/100;
-var support2=Math.round((op*0.98)*100)/100;
-var resist1=Math.round((hi*0.99)*100)/100;
-var resist2=Math.round((hi*1.01)*100)/100;
-document.getElementById('t0levels').innerHTML='<b>支撑位:</b> '+support1.toFixed(2)+' (强) / '+support2.toFixed(2)+' (弱)<br>'+
-'<b>压力位:</b> '+resist1.toFixed(2)+' (弱) / '+resist2.toFixed(2)+' (强)<br>'+
-'<b>当前价:</b> '+pr.toFixed(2)+' | <b>均价:</b> '+estVWAP.toFixed(2)+'<br>'+
-'<b>今日区间:</b> '+lo.toFixed(2)+' ~ '+hi.toFixed(2)+' | <b>振幅:</b> '+((hi-lo)/lo*100).toFixed(2)+'%';}
-
-var LHB_LIVE=[];
+// ===== 支撑压力 =====
+var atr=ampRange*pr/100;
+var support1=Math.round((lo-atr*0.3)*100)/100;
+var support2=Math.round((lo)*100)/100;
+var resist1=Math.round((hi)*100)/100;
+var resist2=Math.round((hi+atr*0.3)*100)/100;
+document.getElementById('t0levels').innerHTML='<b>支撑:</b> '+support2.toFixed(2)+'(强) / '+support1.toFixed(2)+'(弱)<br>'+
+'<b>压力:</b> '+resist1.toFixed(2)+'(弱) / '+resist2.toFixed(2)+'(强)<br>'+
+'<b>均价:</b> '+estVWAP.toFixed(2)+' | <b>振幅:</b> '+ampRange.toFixed(2)+'%<br>'+
+'<b>外/内:</b> '+actRatio.toFixed(2)+' | <b>时间:</b> '+now.getHours()+':'+(now.getMinutes()<10?'0':'')+now.getMinutes();
+}var LHB_LIVE=[];
 
 function fetchLiveLHB(){
   // Try local data service
