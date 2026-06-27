@@ -558,21 +558,22 @@ document.getElementById('t0speed').style.color=speedPerHour<0?'#f85149':'#3fb950
 document.getElementById('t0s_score').textContent=(speedScore>0?'+':'')+speedScore;
 document.getElementById('t0s_score').style.color=speedScore>0?'#f85149':'#3fb950';
 
-// ===== 支撑压力(确保有序) =====
+// ===== 支撑压力(三档有序) =====
 var atr=ampRange*pr/100;
-// 支撑位（当前价下方，从小到大）
-var s3=Math.min(lo,pre*0.99);                                   // 极强支撑
-var s2=lo;                                                        // 今日最低
-var s1=Math.min(pr-atr*0.3, op*0.995);                           // 弱支撑
-// 压力位（当前价上方，从小到大）
-var r1=Math.max(hi, op*1.005);                                    // 弱压力
-var r2=hi;                                                        // 今日最高
-var r3=pr+atr*0.5;                                                // 强压力
-// 确保顺序不乱
-var supVals=[s3,s2,s1].sort(function(a,b){return a-b;});
-var resVals=[r1,r2,r3].sort(function(a,b){return a-b;});
-document.getElementById('t0levels').innerHTML='<b>支撑:</b> '+supVals[0].toFixed(2)+'(极强) / '+supVals[1].toFixed(2)+'(强) / '+supVals[2].toFixed(2)+'(弱)<br>'+
-'<b>压力:</b> '+resVals[0].toFixed(2)+'(弱) / '+resVals[1].toFixed(2)+'(强) / '+resVals[2].toFixed(2)+'(极强)<br>'+
+// 支撑位：全部在当前价下方，距当前价越近越"弱"
+var supportCandidates=[lo, lo-atr*0.3, op*0.99, Math.min(pr*0.995,lo*1.003), op*0.98].filter(function(x){return x<pr;});
+supportCandidates.sort(function(a,b){return b-a;}); // 从大到小（距当前价越近排越前）
+var s1=supportCandidates[0]||lo;  // 最近=弱支撑
+var s2=supportCandidates[1]||lo*0.99; // 中间=中支撑
+var s3=supportCandidates[2]||lo*0.98; // 最远=强支撑
+// 压力位：全部在当前价上方，距当前价越近越"弱"
+var resistCandidates=[hi, hi+atr*0.3, op*1.01, Math.max(pr*1.005,hi*0.997), op*1.02].filter(function(x){return x>pr;});
+resistCandidates.sort(function(a,b){return a-b;}); // 从小到大（距当前价越近排越前）
+var r1=resistCandidates[0]||hi;  // 最近=弱压力
+var r2=resistCandidates[1]||hi*1.01; // 中间=中压力
+var r3=resistCandidates[2]||hi*1.02; // 最远=强压力
+document.getElementById('t0levels').innerHTML='<b>支撑:</b> '+s1.toFixed(2)+'(弱) / '+s2.toFixed(2)+'(中) / '+s3.toFixed(2)+'(强)<br>'+
+'<b>压力:</b> '+r1.toFixed(2)+'(弱) / '+r2.toFixed(2)+'(中) / '+r3.toFixed(2)+'(强)<br>'+
 '<b>均价:</b> '+estVWAP.toFixed(2)+' | <b>振幅:</b> '+ampRange.toFixed(2)+'%<br>'+
 '<b>外/内:</b> '+actRatio.toFixed(2)+' | <b>换手:</b> '+tr+'%<br>'+
 '<b>开盘:</b> '+op.toFixed(2)+' | <b>缺口:</b> '+gapPct.toFixed(2)+'% | <b>ATR:</b> '+atr.toFixed(2);
