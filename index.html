@@ -300,8 +300,8 @@ function renderLHBAll(){
 }
 
 function showLHB(code,name){
-var items=LHB_LIVE.length>0?LHB_LIVE.filter(function(i){return String(i['代码']||i.code)===String(code);}):LHB.filter(function(i){return i.code===code;});
-document.getElementById('lhbt').innerHTML=' — '+name+'('+code+') <span style="color:#8b949e;font-size:11px;margin-left:6px" id="lhbStatus">加载中...</span>';
+var items=LHB.filter(function(i){return i.code===code;});
+document.getElementById('lhbt').innerHTML=' — '+name+'('+code+')';
 // 个股明细
 if(items.length===0){
 document.getElementById('lhbdata').innerHTML='<div class=di2 style=text-align:center;>近3日未上龙虎榜</div>';
@@ -397,5 +397,5 @@ document.querySelectorAll('.nav button').forEach(function(b){b.classList.remove(
 var idx={'t0':0,'tech':1,'score':2,'lhb':3,'cmp':4};
 if(document.querySelectorAll('.nav button')[idx[n]])document.querySelectorAll('.nav button')[idx[n]].classList.add('active');}
 
-search();loadIdx();fetchLiveLHB();setInterval(fetchLiveLHB,30000);setInterval(function(){loadRT(curCode);},30000);
+search();loadIdx();setInterval(function(){loadRT(curCode);},30000);
 </script></body></html>
