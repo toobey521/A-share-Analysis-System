@@ -435,8 +435,8 @@ document.getElementById('cmpInfo').innerHTML='本股 <b>'+chg+'%</b> | 沪深300
 document.getElementById('cmpData').innerHTML='<div class=di><div class=l>起始价</div><div class=v>'+c[0].toFixed(2)+'</div></div><div class=di><div class=l>最新价</div><div class="v '+(chg>=0?'up':'down')+'\">'+c[c.length-1].toFixed(2)+'</div></div><div class=di><div class=l>本股涨幅</div><div class="v '+(chg>=0?'up':'down')+'\">'+chg+'%</div></div><div class=di><div class=l>HS300涨幅</div><div class="v '+(hchg>=0?'up':'down')+'\">'+hchg+'%</div></div><div class=di><div class=l>60日最高</div><div class="v up">'+Math.max.apply(null,c).toFixed(2)+'</div></div><div class=di><div class=l>60日最低</div><div class="v down">'+Math.min.apply(null,c).toFixed(2)+'</div></div>';})
 ['catch'](function(){document.getElementById('cmpInfo').textContent='对比加载失败';});}
 
-function loadIdx(){var sc=document.createElement('script');sc.src='https://qt.gtimg.cn/q=sh000001,sz399001,sz399006,sh000300';
-sc.onload=function(){setTimeout(function(){var ids=[['sh000001','上证'],['sz399001','深证'],['sz399006','创业板'],['sh000300','HS300']],h='';
+function loadIdx(){var sc=document.createElement('script');sc.src='https://qt.gtimg.cn/q=sh000001,sz399001,sz399006,sh000300,sh000688';
+sc.onload=function(){setTimeout(function(){var ids=[['sh000001','上证'],['sz399001','深证'],['sh000688','科创50'],['sz399006','创业板'],['sh000300','HS300']],h='';
 for(var i=0;i<ids.length;i++){var k=ids[i][0],n=ids[i][1],v=window['v_'+k];if(!v)continue;var p=v.split('~'),pr=+p[3],pre=+p[4],cg=pr-pre,cp=(cg/pre*100);
 h+='<div class=di><div class=l>'+n+'</div><div class="v '+(cg>=0?'up':'down')+'\">'+pr.toFixed(1)+' '+(cg>0?'+':'')+cp.toFixed(2)+'%</div></div>';}
 document.getElementById('idxg').innerHTML=h;},300);};document.head.appendChild(sc);}
