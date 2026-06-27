@@ -615,43 +615,48 @@ function renderLHBAll(){
 }
 
 function calcCap(p,pr,extVol,intVol,cp,am,op,hi,lo,vl,tr){
-  // 4格概览
   var ba=extVol*pr*100,sa=intVol*pr*100,na=ba-sa,ra=extVol/(intVol||1);
   var b1=+p[10]||0,s1=+p[20]||0;
-  var h='<div class=di><div class=l>主力净额</div><div class="v '+(na>=0?'up':'down')+'">'+(na>=0?'+':'')+(na/1e8).toFixed(2)+'亿</div></div>';
-  h+='<div class=di><div class=l>外盘/内盘</div><div class="v '+(ra>=1?'up':'down')+'">'+ra.toFixed(2)+'</div></div>';
-  document.getElementById('bigGrid').innerHTML=h;
-  // 4小格（主买/主卖/外盘/内盘）
-  var sh='<div class=di><div class=l>主买金额</div><div class="v up">'+(ba/1e8).toFixed(2)+'亿</div></div>';
-  sh+='<div class=di><div class=l>主卖金额</div><div class="v down">'+(sa/1e8).toFixed(2)+'亿</div></div>';
-  sh+='<div class=di><div class=l>外盘</div><div class="v up">'+(extVol/10000).toFixed(1)+'万手</div></div>';
-  sh+='<div class=di><div class=l>内盘</div><div class="v down">'+(intVol/10000).toFixed(1)+'万手</div></div>';
-  document.getElementById('smallGrid').innerHTML=sh;
-  // 资金拆分
+  // 2格
+  var h='<div class=di><div class=l>ZhuLi JingE</div><div class="v '+(na>=0?'up':'down')+'">'+(na>=0?'+':'')+(na/1e8).toFixed(2)+'Yi</div></div>';
+  h+='<div class=di><div class=l>WaiP/NeiP</div><div class="v '+(ra>=1?'up':'down')+'">'+ra.toFixed(2)+'</div></div>';
+  var el1=document.getElementById('bigGrid');if(el1)el1.innerHTML=h;
+  // 4格
+  var sh='<div class=di><div class=l>ZhuMaiJinE</div><div class=v style=color:#e74c3c>'+(ba/1e8).toFixed(2)+'Yi</div></div>';
+  sh+='<div class=di><div class=l>ZhuMaiJinE</div><div class=v style=color:#3fb950>'+(sa/1e8).toFixed(2)+'Yi</div></div>';
+  sh+='<div class=di><div class=l>WaiPan</div><div class=v style=color:#e74c3c>'+(extVol/10000).toFixed(1)+'WS</div></div>';
+  sh+='<div class=di><div class=l>NeiPan</div><div class=v style=color:#3fb950>'+(intVol/10000).toFixed(1)+'WS</div></div>';
+  var el2=document.getElementById('smallGrid');if(el2)el2.innerHTML=sh;
+  // 拆分
   var bv=(+p[10]||0)+(+p[12]||0)+(+p[14]||0)+(+p[16]||0)+(+p[18]||0);
   var sv=(+p[20]||0)+(+p[22]||0)+(+p[24]||0)+(+p[26]||0)+(+p[28]||0);
-  var bb=Math.round(b1*pr*100),bs=Math.round(s1*pr*100);
-  var mb=Math.round(((bv-b1)/4||0)*pr*100);
+  var bb=Math.round(b1*pr*100),bs=Math.round(s1*pr*100),mb=Math.round(((bv-b1)/4||0)*pr*100);
   var ms=Math.round(((sv-s1)/4||0)*pr*100);
   var sb=Math.max(0,ba-bb-mb),ss=Math.max(0,sa-bs-ms);
   var bn=bb-bs,mn=mb-ms,sn=sb-ss;
   var mc=+p[45]||0,nr=mc>1000?0.12:mc>200?0.06:0.03;
   var nb=Math.round(ba*nr),ns=Math.round(sa*nr),nn=nb-ns;
-  function se(id,v,fmt){var el=document.getElementById(id);if(!el)return;if(fmt=='n')el.textContent=(v>=0?'+':'')+(Math.abs(v)/1e8).toFixed(2)+'亿';else el.textContent=(v/1e8).toFixed(2)+'亿';el.style.color=v>=0?'#e74c3c':'#3fb950';}
+  function se(id,v,fmt){
+    var el=document.getElementById(id);
+    if(!el)return;
+    if(fmt=='n')el.textContent=(v>=0?'+':'')+(Math.abs(v)/1e8).toFixed(2)+'Yi';
+    else el.textContent=(v/1e8).toFixed(2)+'Yi';
+    el.style.color=v>=0?'#e74c3c':'#3fb950';
+  }
   se('bg_bigBuy',bb,'');se('bg_bigSell',bs,'');se('bg_bigNet',bn,'n');
   se('bg_midBuy',mb,'');se('bg_midSell',ms,'');se('bg_midNet',mn,'n');
   se('bg_smlBuy',sb,'');se('bg_smlSell',ss,'');se('bg_smlNet',sn,'n');
   se('bg_northBuy',nb,'');se('bg_northSell',ns,'');se('bg_northNet',nn,'n');
-  // 强度分析
-  var fl=na/1e8,nd=nn>=0?'净流入':'净流出',bg='';
-  if(fl>2&&ra>1.3)bg='🔴 大资金强势介入<br>超大单+'+(bn/1e8).toFixed(2)+'亿，北向'+nd+(Math.abs(nn)/1e8).toFixed(2)+'亿';
-  else if(fl>0.5&&ra>1.1)bg='📗 偏多<br>资金温和流入，北向'+nd+(Math.abs(nn)/1e8).toFixed(2)+'亿';
-  else if(fl>-0.5)bg='⏸️ 均衡<br>多空平衡，北向'+nd+(Math.abs(nn)/1e8).toFixed(2)+'亿';
-  else if(fl>-2)bg='📕 偏空<br>资金小幅流出，北向'+nd+(Math.abs(nn)/1e8).toFixed(2)+'亿';
-  else bg='🟢 资金出逃<br>超大单-'+(Math.abs(bn)/1e8).toFixed(2)+'亿，北向'+nd+(Math.abs(nn)/1e8).toFixed(2)+'亿';
-  document.getElementById('bgStrength').innerHTML=bg;
-  document.getElementById('bigt').textContent='| '+new Date().toLocaleTimeString('zh-CN');
-  document.getElementById('capInfo').textContent='📡 '+(ra>1.2?'🔥买方主导':ra<0.8?'❄️卖方主导':'📊多空均衡')+' 外盘'+(extVol/10000).toFixed(1)+'万/内盘'+(intVol/10000).toFixed(1)+'万';
+  // 强度
+  var fl=na/1e8,nd=nn>=0?'JR':'LC',bg='';
+  if(fl>2&&ra>1.3)bg='QiangShiJieRu: ChaoDan+'+(bn/1e8).toFixed(2)+'Yi, BeiXiang'+nd+(Math.abs(nn)/1e8).toFixed(2)+'Yi';
+  else if(fl>0.5&&ra>1.1)bg='PianDuo: WenHeLiuRu, BeiXiang'+nd+(Math.abs(nn)/1e8).toFixed(2)+'Yi';
+  else if(fl>-0.5)bg='JunHeng: DuoKongPingHeng';
+  else if(fl>-2)bg='PianKong: XiaoFuLiuChu';
+  else bg='ChuTao: ChaoDan-'+(Math.abs(bn)/1e8).toFixed(2)+'Yi, BeiXiang'+nd+(Math.abs(nn)/1e8).toFixed(2)+'Yi';
+  var el3=document.getElementById('bgStrength');if(el3)el3.innerHTML=bg;
+  var el4=document.getElementById('bigt');if(el4)el4.textContent='| '+new Date().toLocaleTimeString('zh-CN');
+  var el5=document.getElementById('capInfo');if(el5)el5.textContent='WaiPan'+(extVol/10000).toFixed(1)+'WS / NeiPan'+(intVol/10000).toFixed(1)+'WS';
 }function showLHB(code,name){
 var items=LHB_LIVE.length>0?LHB_LIVE.filter(function(i){return (i['代码']||i.code)===code;}):LHB.filter(function(i){return i.code===code;});
 document.getElementById('lhbt').innerHTML=' — '+name+'('+code+')';
