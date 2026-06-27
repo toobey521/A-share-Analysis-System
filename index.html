@@ -642,6 +642,8 @@ try{
   else st='🟢 <strong style=color:#3fb950>出逃</strong> 超大单净卖出:'+(Math.abs(bn)/1e8).toFixed(2)+'亿';
   var el3=gi('capStrength');if(el3)el3.innerHTML=st;
   var el4=gi('capInfo');if(el4)el4.textContent='📊 主力'+(na>0?'净买入 ':'净卖出 ')+(Math.abs(na)/1e8).toFixed(2)+'亿 | 外盘'+(extVol/10000).toFixed(1)+'万手 vs 内盘'+(intVol/10000).toFixed(1)+'万手';
-}catch(e){var ei=document.getElementById('capInfo');if(ei)ei.textContent='资金: '+e.message;}
+}catch(e){var ei=document.getElementById('capInfo');if(ei)ei.textContent='\u8d44\u91d1: '+e.message;}
 }
-</script></body></html></script></body></html></script></body></html>
+</script>
+</body>
+</html>
