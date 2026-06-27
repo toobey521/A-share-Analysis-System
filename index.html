@@ -320,6 +320,22 @@ else if(orderDiff>-500)diffScore=-3;
 else diffScore=-5;
 
 // ===== 总分 =====
+// 新增因子计算 (必须在rawTotal之前)
+var gapPct=((op-pre)/pre*100);
+var gapScore=0;
+if(gapPct<-1.5)gapScore=5; else if(gapPct<-0.5)gapScore=3; else if(gapPct<0.5)gapScore=0; else if(gapPct<1.5)gapScore=-3; else gapScore=-5;
+var trScore=0;
+if(tr>5)trScore=5; else if(tr>3)trScore=3; else if(tr>1)trScore=1; else if(tr>0.5)trScore=0; else trScore=-2;
+var pvScore=0;
+if(cp<0&&actRatio<0.8)pvScore=5; else if(cp<0&&actRatio<1)pvScore=3; else if(cp<0&&actRatio>=1)pvScore=-3; else if(cp>0&&actRatio>1.2)pvScore=5; else if(cp>0&&actRatio>1)pvScore=3; else if(cp>0&&actRatio<=0.8)pvScore=-3; else pvScore=0;
+var b1=(+p[10]||0),s1=(+p[20]||0);
+var depthScore=0;
+if(b1>500&&s1<300)depthScore=5; else if(b1>s1*1.5)depthScore=3; else if(s1>b1*1.5)depthScore=-3; else if(s1>500&&b1<300)depthScore=-5; else depthScore=0;
+var marketMins=(mins-570);
+var speedPerHour=marketMins>0?(cp/marketMins*60):0;
+var speedScore=0;
+if(speedPerHour<-3)speedScore=5; else if(speedPerHour<-1.5)speedScore=3; else if(speedPerHour<1.5)speedScore=0; else if(speedPerHour<3)speedScore=-3; else speedScore=-5;
+
 var rawTotal=posScore+vwapScore+cpScore+orderScore+actScore+volScore+ampScore+openScore+diffScore+gapScore+trScore+pvScore+depthScore+speedScore;
 var total=Math.max(-100,Math.min(100,rawTotal+timeScore));
 
@@ -401,72 +417,7 @@ document.getElementById('t0time_score').style.color=timeScore>=0?'#58a6ff':'#f85
 document.getElementById('t0tw_score').textContent=(timeScore>0?'+':'')+timeScore;
 document.getElementById('t0tw_score').style.color=timeScore>=0?'#f85149':'#3fb950';
 
-// ===== 11. 开盘缺口 (0~5分) =====
-var gapPct=((op-pre)/pre*100);
-var gapScore=0;
-if(gapPct<-1.5)gapScore=5;      // 大幅低开，超卖反弹预期
-else if(gapPct<-0.5)gapScore=3; // 小幅低开
-else if(gapPct<0.5)gapScore=0;  // 平开
-else if(gapPct<1.5)gapScore=-3; // 小幅高开
-else gapScore=-5;                // 大幅高开，追高风险
-document.getElementById('t0gap').innerHTML=gapPct.toFixed(2)+'%'+(gapPct<-0.5?'📉':gapPct>0.5?'📈':'');
-document.getElementById('t0gap').style.color=gapPct<0?'#f85149':'#3fb950';
-document.getElementById('t0g_score').textContent=(gapScore>0?'+':'')+gapScore;
-document.getElementById('t0g_score').style.color=gapScore>0?'#f85149':'#3fb950';
 
-// ===== 12. 换手率配合 (0~5分) =====
-var trScore=0;
-if(tr>5)trScore=5;           // 高换手，活跃适合T
-else if(tr>3)trScore=3;
-else if(tr>1)trScore=1;
-else if(tr>0.5)trScore=0;
-else trScore=-2;               // 僵尸股
-document.getElementById('t0tr').innerHTML=tr+'%'+(tr>3?'🔥':tr>1?'📗':'');
-document.getElementById('t0tr').style.color=tr>1?'#f85149':'#8b949e';
-document.getElementById('t0tr_score').textContent=(trScore>0?'+':'')+trScore;
-document.getElementById('t0tr_score').style.color=trScore>0?'#f85149':'#3fb950';
-
-// ===== 13. 量价协同 (0~5分) =====
-var pvScore=0;
-if(cp<0&&actRatio<0.8)pvScore=5;      // 下跌缩量，健康回调
-else if(cp<0&&actRatio<1)pvScore=3;
-else if(cp<0&&actRatio>=1)pvScore=-3;  // 下跌放量，危险
-else if(cp>0&&actRatio>1.2)pvScore=5;  // 上涨放量，健康
-else if(cp>0&&actRatio>1)pvScore=3;
-else if(cp>0&&actRatio<=0.8)pvScore=-3;// 上涨缩量, 量价背离
-else pvScore=0;
-document.getElementById('t0pv').innerHTML=(cp<0&&actRatio<0.8)?'跌缩量📗':(cp<0&&actRatio>=1)?'跌放量❌':(cp>0&&actRatio>1.2)?'涨放量🔥':(cp>0&&actRatio<=0.8)?'涨缩量⚠️':'正常';
-document.getElementById('t0pv').style.color=pvScore>0?'#f85149':pvScore<0?'#3fb950':'#8b949e';
-document.getElementById('t0pv_score').textContent=(pvScore>0?'+':'')+pvScore;
-document.getElementById('t0pv_score').style.color=pvScore>0?'#f85149':'#3fb950';
-
-// ===== 14. 第一档挂单厚度 (0~5分) =====
-var b1=(+p[10]||0),s1=(+p[20]||0);
-var depthScore=0;
-if(b1>500&&s1<300)depthScore=5;       // 买一远厚于卖一，强支撑
-else if(b1>s1*1.5)depthScore=3;
-else if(s1>b1*1.5)depthScore=-3;       // 卖一远厚于买一，强压力
-else if(s1>500&&b1<300)depthScore=-5;
-else depthScore=0;
-var b1Amt=b1*pr*100,s1Amt=s1*pr*100;
-document.getElementById('t0depth').innerHTML='买一'+(b1/100).toFixed(0)+'手('+(b1Amt/1e4).toFixed(0)+'万)/卖一'+(s1/100).toFixed(0)+'手('+(s1Amt/1e4).toFixed(0)+'万)';
-document.getElementById('t0depth').style.color=depthScore>0?'#f85149':depthScore<0?'#3fb950':'#8b949e';
-document.getElementById('t0d_score').textContent=(depthScore>0?'+':'')+depthScore;
-document.getElementById('t0d_score').style.color=depthScore>0?'#f85149':'#3fb950';
-
-// ===== 15. 涨速 (0~5分) =====
-var marketMins=(mins-570); // 9:30开盘
-var speedPerHour=marketMins>0?(cp/marketMins*60):0;
-var speedScore=0;
-if(speedPerHour<-3)speedScore=5;      // 快速下跌，超卖反弹
-else if(speedPerHour<-1.5)speedScore=3;
-else if(speedPerHour<1.5)speedScore=0;
-else if(speedPerHour<3)speedScore=-3;
-else speedScore=-5;                     // 快速上涨，回调风险
-document.getElementById('t0speed').innerHTML=speedPerHour.toFixed(2)+'%/h'+(speedPerHour<-1.5?'📉':speedPerHour>1.5?'📈':'');
-document.getElementById('t0speed').style.color=speedPerHour<0?'#f85149':'#3fb950';
-document.getElementById('t0s_score').textContent=(speedScore>0?'+':'')+speedScore;
-document.getElementById('t0s_score').style.color=speedScore>0?'#f85149':'#3fb950';
 
 // 重新计算总分（含新增因子）
 
@@ -508,6 +459,37 @@ if(mins>=870)advice+=' ⚠️14:30后建议只平仓不新开';
 if(mins>=890)advice+=' ⛔尾盘禁止新开T仓';
 
 document.getElementById('t0advice').innerHTML=advice;
+
+// ===== 11. 开盘缺口显示 =====
+document.getElementById('t0gap').innerHTML=gapPct.toFixed(2)+'%'+(gapPct<-0.5?'📉':gapPct>0.5?'📈':'');
+document.getElementById('t0gap').style.color=gapPct<0?'#f85149':'#3fb950';
+document.getElementById('t0g_score').textContent=(gapScore>0?'+':'')+gapScore;
+document.getElementById('t0g_score').style.color=gapScore>0?'#f85149':'#3fb950';
+
+// ===== 12. 换手率显示 =====
+document.getElementById('t0tr').innerHTML=tr+'%'+(tr>3?'🔥':tr>1?'📗':'');
+document.getElementById('t0tr').style.color=tr>1?'#f85149':'#8b949e';
+document.getElementById('t0tr_score').textContent=(trScore>0?'+':'')+trScore;
+document.getElementById('t0tr_score').style.color=trScore>0?'#f85149':'#3fb950';
+
+// ===== 13. 量价协同显示 =====
+document.getElementById('t0pv').innerHTML=(cp<0&&actRatio<0.8)?'跌缩量📗':(cp<0&&actRatio>=1)?'跌放量❌':(cp>0&&actRatio>1.2)?'涨放量🔥':(cp>0&&actRatio<=0.8)?'涨缩量⚠️':'正常';
+document.getElementById('t0pv').style.color=pvScore>0?'#f85149':pvScore<0?'#3fb950':'#8b949e';
+document.getElementById('t0pv_score').textContent=(pvScore>0?'+':'')+pvScore;
+document.getElementById('t0pv_score').style.color=pvScore>0?'#f85149':'#3fb950';
+
+// ===== 14. 第一档厚度显示 =====
+var b1Amt=b1*pr*100,s1Amt=s1*pr*100;
+document.getElementById('t0depth').innerHTML='买一'+(b1/100).toFixed(0)+'手('+(b1Amt/1e4).toFixed(0)+'万)/卖一'+(s1/100).toFixed(0)+'手('+(s1Amt/1e4).toFixed(0)+'万)';
+document.getElementById('t0depth').style.color=depthScore>0?'#f85149':depthScore<0?'#3fb950':'#8b949e';
+document.getElementById('t0d_score').textContent=(depthScore>0?'+':'')+depthScore;
+document.getElementById('t0d_score').style.color=depthScore>0?'#f85149':'#3fb950';
+
+// ===== 15. 涨速显示 =====
+document.getElementById('t0speed').innerHTML=speedPerHour.toFixed(2)+'%/h'+(speedPerHour<-1.5?'📉':speedPerHour>1.5?'📈':'');
+document.getElementById('t0speed').style.color=speedPerHour<0?'#f85149':'#3fb950';
+document.getElementById('t0s_score').textContent=(speedScore>0?'+':'')+speedScore;
+document.getElementById('t0s_score').style.color=speedScore>0?'#f85149':'#3fb950';
 
 // ===== 支撑压力 =====
 var atr=ampRange*pr/100;
