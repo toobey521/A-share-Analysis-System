@@ -317,11 +317,11 @@ function calcCap(p,pr){
   var lgNet=lgBuy-lgSell;
   
   var h='<div class=di><div class=l>主买金额</div><div class="v up">'+(buyAmt/1e8).toFixed(2)+'亿</div></div>';
-  h+='<div class=di><div class=l>主卖金额</div><div class="v down">'+(sellAmt/1e8).toFixed(2)+'亿</div></div>';
-  h+='<div class=di><div class=l>净流入</div><div class="v '+(netAmt>=0?'up':'down')+'">'+(netAmt>=0?'+':'')+(netAmt/1e8).toFixed(2)+'亿</div></div>';
-  h+='<div class=di><div class=l>外盘</div><div class="v up">'+(extVol/10000).toFixed(0)+'万手</div></div>';
-  h+='<div class=di><div class=l>内盘</div><div class="v down">'+(intVol/10000).toFixed(0)+'万手</div></div>';
-  h+='<div class=di><div class=l>买卖比</div><div class="v '+(ratio>=1?'up':'down')+'">'+ratio.toFixed(2)+'</div></div>';
+    h+='<div class=di><div class=l>外盘</div><div class="v up">'+(extVol/10000).toFixed(0)+'万手</div></div>';
+    h+='<div class=di><div class=l>净流入</div><div class="v '+(netAmt>=0?'up':'down')+'">'+(netAmt>=0?'+':'')+(netAmt/1e8).toFixed(2)+'亿</div></div>';
+    h+='<div class=di><div class=l>主卖金额</div><div class="v down">'+(sellAmt/1e8).toFixed(2)+'亿</div></div>';
+    h+='<div class=di><div class=l>内盘</div><div class="v down">'+(intVol/10000).toFixed(0)+'万手</div></div>';
+    h+='<div class=di><div class=l>买卖比</div><div class="v '+(ratio>=1?'up':'down')+'">'+ratio.toFixed(2)+'</div></div>';
   document.getElementById('capGrid').innerHTML=h;
   
   var info='📊 主力'+(netAmt>0?'净买入 ':'净卖出 ')+(Math.abs(netAmt)/1e8).toFixed(2)+'亿 | ';
