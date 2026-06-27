@@ -129,8 +129,8 @@ tr:hover{background:#1c2129;}
 
 <div class="panel" id="pcap">
 <div class="card"><h2>💰 资金 <span id="bigt" style="font-size:11px;color:#8b949e;font-weight:400;"></span></h2>
-<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:6px;" id="bigGrid"></div>
-<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px;" id="smallGrid"></div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;" id="bigGrid"></div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;" id="fundGrid"></div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
 <div class="card" style="padding:8px;"><div style="font-size:11px;color:#58a6ff;margin-bottom:4px;">📊 资金拆分</div>
 <table style="width:100%;font-size:11px;"><tr><th>类型</th><th>买入</th><th>卖出</th><th>净额</th></tr>
@@ -617,13 +617,16 @@ function renderLHBAll(){
 function calcCap(p,pr,extVol,intVol,cp,am,op,hi,lo,vl,tr){
   var ba=extVol*pr*100,sa=intVol*pr*100,na=ba-sa,ra=extVol/(intVol||1);
   var b1=+p[10]||0,s1=+p[20]||0;
-  // bigGrid
-  var el1=document.getElementById('bigGrid');
-  if(el1)el1.innerHTML='<div class=di><div class=l>主力净额</div><div class=v style=color:'+(na>=0?'#e74c3c':'#3fb950')+'>'+(na>=0?'+':'')+(na/1e8).toFixed(2)+'亿</div></div><div class=di><div class=l>外盘/内盘</div><div class=v style=color:'+(ra>=1?'#e74c3c':'#3fb950')+'>'+ra.toFixed(2)+'</div></div>';
-  // smallGrid
-  var el2=document.getElementById('smallGrid');
-  if(el2)el2.innerHTML='<div class=di><div class=l>主买金额</div><div class=v style=color:#e74c3c>'+(ba/1e8).toFixed(2)+'亿</div></div><div class=di><div class=l>主卖金额</div><div class=v style=color:#3fb950>'+(sa/1e8).toFixed(2)+'亿</div></div><div class=di><div class=l>外盘</div><div class=v style=color:#e74c3c>'+(extVol/10000).toFixed(1)+'万手</div></div><div class=di><div class=l>内盘</div><div class=v style=color:#3fb950>'+(intVol/10000).toFixed(1)+'万手</div></div>';
-  // 拆分表
+  // bigGrid (3x2)
+  var eg=document.getElementById('bigGrid');
+  if(eg)eg.innerHTML=
+    '<div class=di><div class=l>主力净额</div><div class="v '+(na>=0?'up':'down')+'">'+(na>=0?'+':'')+(na/1e8).toFixed(2)+'亿</div></div>'+
+    '<div class=di><div class=l>外盘/内盘</div><div class="v '+(ra>=1?'up':'down')+'">'+ra.toFixed(2)+'</div></div>'+
+    '<div class=di><div class=l>主买金额</div><div class=v style=color:#e74c3c>'+(ba/1e8).toFixed(2)+'亿</div></div>'+
+    '<div class=di><div class=l>主卖金额</div><div class=v style=color:#3fb950>'+(sa/1e8).toFixed(2)+'亿</div></div>'+
+    '<div class=di><div class=l>外盘</div><div class=v style=color:#e74c3c>'+(extVol/10000).toFixed(1)+'万手</div></div>'+
+    '<div class=di><div class=l>内盘</div><div class=v style=color:#3fb950>'+(intVol/10000).toFixed(1)+'万手</div></div>';
+  // fundGrid (3x2)
   var bv=(+p[10]||0)+(+p[12]||0)+(+p[14]||0)+(+p[16]||0)+(+p[18]||0);
   var sv=(+p[20]||0)+(+p[22]||0)+(+p[24]||0)+(+p[26]||0)+(+p[28]||0);
   var bb=Math.round(b1*pr*100),bs=Math.round(s1*pr*100),mb=Math.round(((bv-b1)/4||0)*pr*100);
@@ -632,27 +635,27 @@ function calcCap(p,pr,extVol,intVol,cp,am,op,hi,lo,vl,tr){
   var bn=bb-bs,mn=mb-ms,sn=sb-ss;
   var mc=+p[45]||0,nr=mc>1000?0.12:mc>200?0.06:0.03;
   var nb=Math.round(ba*nr),ns=Math.round(sa*nr),nn=nb-ns;
-  var bid=['bg_bigBuy',bb,'','bg_bigSell',bs,'','bg_bigNet',bn,'n','bg_midBuy',mb,'','bg_midSell',ms,'','bg_midNet',mn,'n','bg_smlBuy',sb,'','bg_smlSell',ss,'','bg_smlNet',sn,'n','bg_northBuy',nb,'','bg_northSell',ns,'','bg_northNet',nn,'n'];
-  for(var i=0;i<bid.length;i+=3){
-    var el=document.getElementById(bid[i]);
-    if(!el)continue;
-    var v=bid[i+1],fmt=bid[i+2];
-    el.textContent=fmt=='n'?(v>=0?'+':'')+(Math.abs(v)/1e8).toFixed(2)+'亿':(v/1e8).toFixed(2)+'亿';
-    el.style.color=v>=0?'#e74c3c':'#3fb950';
-  }
+  var fg=document.getElementById('fundGrid');
+  if(fg)fg.innerHTML=
+    '<div class=di><div class=l>超大单</div><div class=v style=color:#e74c3c>'+(bb/1e8).toFixed(2)+'亿</div></div>'+
+    '<div class=di><div class=l>大单</div><div class=v style=color:#e74c3c>'+(mb/1e8).toFixed(2)+'亿</div></div>'+
+    '<div class=di><div class=l>小单</div><div class=v style=color:#e74c3c>'+(sb/1e8).toFixed(2)+'亿</div></div>'+
+    '<div class=di><div class=l>北向资金</div><div class=v style=color:'+(nn>=0?'#e74c3c':'#3fb950')+'>'+(nn>=0?'+':'')+(nn/1e8).toFixed(2)+'亿</div></div>'+
+    '<div class=di><div class=l>超大单净额</div><div class=v style=color:'+(bn>=0?'#e74c3c':'#3fb950')+'>'+(bn>=0?'+':'')+(bn/1e8).toFixed(2)+'亿</div></div>'+
+    '<div class=di><div class=l>买卖净额</div><div class=v style=color:'+(na>=0?'#e74c3c':'#3fb950')+'>'+(na>=0?'+':'')+(na/1e8).toFixed(2)+'亿</div></div>';
   // 强度
-  var fl=na/1e8,nd=nn>=0?'净流入':'净流出',bg='';
-  if(fl>2&&ra>1.3)bg='大资金强势介入: 超大单+'+(bn/1e8).toFixed(2)+'亿 北向'+nd+(Math.abs(nn)/1e8).toFixed(2)+'亿';
-  else if(fl>0.5&&ra>1.1)bg='偏多: 资金温和流入 北向'+nd+(Math.abs(nn)/1e8).toFixed(2)+'亿';
-  else if(fl>-0.5)bg='均衡: 多空平衡';
-  else if(fl>-2)bg='偏空: 资金小幅流出';
-  else bg='资金出逃: 超大单-'+(Math.abs(bn)/1e8).toFixed(2)+'亿 北向'+nd+(Math.abs(nn)/1e8).toFixed(2)+'亿';
-  var el3=document.getElementById('bgStrength');
-  if(el3)el3.innerHTML=bg;
-  var el4=document.getElementById('bigt');
-  if(el4)el4.textContent='| '+new Date().toLocaleTimeString('zh-CN');
-  var el5=document.getElementById('capInfo');
-  if(el5)el5.textContent='外盘'+(extVol/10000).toFixed(1)+'万手 / 内盘'+(intVol/10000).toFixed(1)+'万手';
+  var fl=na/1e8,bg='';
+  if(fl>2&&ra>1.3)bg='大资金强势介入';
+  else if(fl>0.5&&ra>1.1)bg='偏多';
+  else if(fl>-0.5)bg='均衡';
+  else if(fl>-2)bg='偏空';
+  else bg='资金出逃';
+  var bgEl=document.getElementById('bgStrength');
+  if(bgEl)bgEl.innerHTML=bg;
+  var bt=document.getElementById('bigt');
+  if(bt)bt.textContent='| '+new Date().toLocaleTimeString('zh-CN');
+  var ci=document.getElementById('capInfo');
+  if(ci)ci.textContent='外盘'+(extVol/10000).toFixed(1)+'万手 / 内盘'+(intVol/10000).toFixed(1)+'万手';
 }function showLHB(code,name){
 var items=LHB_LIVE.length>0?LHB_LIVE.filter(function(i){return (i['代码']||i.code)===code;}):LHB.filter(function(i){return i.code===code;});
 document.getElementById('lhbt').innerHTML=' — '+name+'('+code+')';
