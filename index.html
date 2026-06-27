@@ -299,7 +299,7 @@ function renderLHBAll(){
 
 function showLHB(code,name){
 var items=LHB_LIVE.length>0?LHB_LIVE.filter(function(i){return (i['代码']||i.code)===code;}):LHB.filter(function(i){return i.code===code;});
-document.getElementById('lhbt').innerHTML=' — '+name+'('+code+') <span style="font-size:11px;color:#8b949e;margin-left:6px">📡 静态数据·61只</span>';
+document.getElementById('lhbt').innerHTML=' — '+name+'('+code+')';
 // 个股明细
 if(items.length===0){
 document.getElementById('lhbdata').innerHTML='<div class=di2 style=text-align:center;>近3日未上龙虎榜</div>';
