@@ -169,9 +169,15 @@ curCode=c;document.getElementById('techSt').innerHTML='<span class=loader></span
 
 function loadRT(code){var pfx=code.startsWith('6')?'sh':'sz',sc=document.createElement('script');
 sc.src='https://qt.gtimg.cn/q='+pfx+code;
-sc.onload=function(){setTimeout(function(){var v=window['v_'+pfx+code];if(v&&v.length>20)parseRT(v);else document.getElementById('dinfo').textContent='⚠️ 未找到';},300);};
-sc.onerror=function(){document.getElementById('dinfo').textContent='⚠️ 网络错误';};
-document.head.appendChild(sc);setTimeout(function(){try{document.head.removeChild(sc)}catch(e){}},2000);}
+var rt=loadRT._r||{};if(!rt[code])rt[code]=0;rt[code]++;loadRT._r=rt;
+sc.onload=function(){setTimeout(function(){
+  var v=window['v_'+pfx+code];
+  if(v&&v.length>20){parseRT(v);rt[code]=0;}
+  else if(rt[code]<3){setTimeout(function(){loadRT(code);},500);}
+  else document.getElementById('dinfo').textContent='\u26a0\u672a\u627e\u5230';
+},800);};
+sc.onerror=function(){document.getElementById('dinfo').textContent='\u7f51\u7edc\u9519\u8bef';};
+document.head.appendChild(sc);setTimeout(function(){try{document.head.removeChild(sc)}catch(e){}},3000);}
 
 function parseRT(r){
 var p=r.split('~'),nm=p[1],pr=+p[3],pre=+p[4],op=+p[5],hi=+p[33]||0,lo=+p[34]||0;
@@ -644,6 +650,7 @@ try{
   var el4=gi('capInfo');if(el4)el4.textContent='📊 主力'+(na>0?'净买入 ':'净卖出 ')+(Math.abs(na)/1e8).toFixed(2)+'亿 | 外盘'+(extVol/10000).toFixed(1)+'万手 vs 内盘'+(intVol/10000).toFixed(1)+'万手';
 }catch(e){var ei=document.getElementById('capInfo');if(ei)ei.textContent='\u8d44\u91d1: '+e.message;}
 }
+search();setInterval(function(){loadRT(curCode);},30000);
 </script>
 </body>
 </html>
