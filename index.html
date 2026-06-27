@@ -53,7 +53,7 @@ tr:hover{background:#1c2129;}
 <button onclick="sw('tech')">📈技术面</button>
 <button onclick="sw('score')">🎯评分</button>
 <button onclick="sw('cap')">💰资金</button>
-<button onclick="sw('lhb')">🐯龙虎榜</button>
+<button onclick="sw('lhb')">🏦大资金</button>
 <button onclick="sw('cmp')">📊大盘对比</button></div>
 
 <div class="panel active" id="pt0">
@@ -134,7 +134,7 @@ tr:hover{background:#1c2129;}
 <div class="di2" id="capInfo">📊 等待数据...</div></div></div>
 
 <div class="panel" id="plhb">
-<div class="card"><h2>🐯 龙虎榜 <span id="lhbt" style="font-size:11px;color:#8b949e;font-weight:400;"></span></h2>
+<div class="card"><h2>🏦 大资金 <span id="lhbt" style="font-size:11px;color:#8b949e;font-weight:400;"></span></h2>
 <div id="lhbdata"></div><div class="di2">📅 2026-06-23~06-25（210条）</div></div>
 <div class="card"><h2>📋 全部龙虎榜</h2><div style="max-height:380px;overflow-y:auto;" id="lhbAll"></div></div></div>
 
@@ -650,7 +650,7 @@ det.buy.forEach(function(r){var a=(+r.买入金额/1e8).toFixed(2),n=(+r.净额/
 dh+='<tr><td>'+r.序号+'</td><td style=max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; title='+r.交易营业部名称+'>'+r.交易营业部名称+'</td><td class=up>'+a+'亿</td><td class='+(n>=0?'up':'down')+'>'+n+'亿</td></tr>';});
 dh+='</table></div><div style=background:#0d1117;padding:8px;border-radius:5px;margin-top:4px;><div style=font-size:12px;color:#3fb950;margin-bottom:4px;>📤 卖出前5</div><table><tr><th>#</th><th>营业部</th><th>卖出额</th><th>净额</th></tr>';
 det.sell.forEach(function(r){var a=(+r.买入金额/1e8).toFixed(2),n=(+r.净额/1e8).toFixed(2);
-dh+='<tr><td>'+r.序号+'</td><td style=max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; title='+r.交易营业部名称+'>'+r.交易营业部名称+'</td><td class=up>'+a+'亿</td><td class='+(n>=0?'up':'down')+'>'+n+'亿</td></tr>';});
+dh+='<tr><td>'+r.序号+'</td><td style=max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; title='+r.交易营业部名称+'>'+r.交易营业部名称+'</td><td class=down>'+a+'亿</td><td class='+(n>=0?'up':'down')+'>'+n+'亿</td></tr>';});
 dh+='</table></div>';
 document.getElementById('lhbdata').innerHTML+=dh;}
 // 全部龙虎榜
