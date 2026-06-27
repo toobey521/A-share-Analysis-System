@@ -677,7 +677,7 @@ h+='<tr><td>'+i.name+'</td><td>'+i.desc+'</td><td class='+(i.net>=0?'up':'down')
 document.getElementById('lhbdata').innerHTML=h;}
 // 营业部明细
 var det=LHB_DET[code];
-if(det){
+if(items.length>0&&det){
 var dh='<div style=background:#0d1117;padding:8px;border-radius:5px;margin-top:8px;><div style=font-size:12px;color:#e74c3c;margin-bottom:4px;>📥 买入前5</div><table><tr><th>#</th><th>营业部</th><th>买入额</th><th>净额</th></tr>';
 det.buy.forEach(function(r){var a=(+r.买入金额/1e8).toFixed(2),n=(+r.净额/1e8).toFixed(2);
 dh+='<tr><td>'+r.序号+'</td><td style=max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; title='+r.交易营业部名称+'>'+r.交易营业部名称+'</td><td class=up>'+a+'亿</td><td class='+(n>=0?'up':'down')+'>'+n+'亿</td></tr>';});
