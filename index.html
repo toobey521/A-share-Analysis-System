@@ -301,26 +301,7 @@ function renderLHBAll(){
 
 function showLHB(code,name){
 document.getElementById('lhbt').innerHTML=' — '+name+'('+code+')';
-// ===== 尝试从本地服务获取实时数据 =====
-fetch('http://localhost:9891/api/lhb/detail?code='+code).then(function(r){return r.json();}).then(function(j){
-  if(j.ok&&j.buy&&j.buy.length>0){
-    var h='<div style="margin-bottom:4px;font-size:11px;color:#8b949e">📡 东方财富实时数据</div>';
-    h+='<div style=background:#0d1117;padding:8px;border-radius:5px;margin-bottom:6px><div style=font-size:12px;color:#e74c3c;margin-bottom:4px;>📥 买入前5</div><table><tr><th>#</th><th>营业部</th><th>买入额</th><th>卖出额</th><th>净额</th></tr>';
-    j.buy.forEach(function(r){
-      var a=(+r.BUY/1e8).toFixed(2),s=(+r.SELL/1e8).toFixed(2),n=(+r.NET/1e8).toFixed(2);
-      h+='<tr><td>'+r.序号+'</td><td style=max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; title='+(r.营业部||r.OPERATEDEPT_NAME)+'>'+(r.营业部||r.OPERATEDEPT_NAME)+'</td><td style=color:#e74c3c>'+a+'亿</td><td style=color:#3fb950>'+s+'亿</td><td class='+(n>=0?'up':'down')+'>'+n+'亿</td></tr>';
-    });
-    h+='</table></div><div style=background:#0d1117;padding:8px;border-radius:5px;margin-bottom:6px><div style=font-size:12px;color:#3fb950;margin-bottom:4px;>📤 卖出前5</div><table><tr><th>#</th><th>营业部</th><th>买入额</th><th>卖出额</th><th>净额</th></tr>';
-    j.sell.forEach(function(r){
-      var a=(+r.BUY/1e8).toFixed(2),s=(+r.SELL/1e8).toFixed(2),n=(+r.NET/1e8).toFixed(2);
-      h+='<tr><td>'+r.序号+'</td><td style=max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; title='+(r.营业部||r.OPERATEDEPT_NAME)+'>'+(r.营业部||r.OPERATEDEPT_NAME)+'</td><td style=color:#e74c3c>'+a+'亿</td><td style=color:#3fb950>'+s+'亿</td><td class='+(n>=0?'up':'down')+'>'+n+'亿</td></tr>';
-    });
-    h+='</table></div>';
-    document.getElementById('lhbdata').innerHTML=h;
-    document.getElementById('lhbt').innerHTML=' — '+name+'('+code+') <span style=font-size:11px;color:#8b949e>实时</span>';
-    return;
-  }
-}).catch(function(){});
+// ===== 静态数据（已嵌入61只股票真实营业部明细）=====
 // ===== 静态数据回退 =====
 var hits=LHB.filter(function(i){return i.code===code;});
 if(hits.length===0){
@@ -342,12 +323,26 @@ if(hits.length===0){
   }
   document.getElementById('lhbdata').innerHTML=h;
 }
+// ===== 本地动态更新按钮 =====
+try{
+  var x=new XMLHttpRequest();
+  x.open('GET','http://localhost:9891/api/lhb/detail?code='+code,true);
+  x.timeout=3000;
+  x.onload=function(){try{var j=JSON.parse(x.responseText);if(j&&j.buy&&j.buy.length>0){
+    var h2='<div style=margin-bottom:4px;font-size:11px;color:#8b949e>📡 本地实时数据</div><div style=background:#0d1117;padding:8px;border-radius:5px;margin-bottom:6px><div style=font-size:12px;color:#e74c3c;margin-bottom:4px;>📥 买入前5</div><table><tr><th>#</th><th>营业部</th><th>买入额</th><th>卖出额</th><th>净额</th></tr>';
+    j.buy.forEach(function(r){var a=(+r.BUY/1e8).toFixed(2),s=(+r.SELL/1e8).toFixed(2),n=(+r.NET/1e8).toFixed(2);h2+='<tr><td>'+r.序号+'</td><td style=max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; title='+(r.OPERATEDEPT_NAME||'')+'>'+(r.OPERATEDEPT_NAME||'')+'</td><td style=color:#e74c3c>'+a+'亿</td><td style=color:#3fb950>'+s+'亿</td><td class='+(n>=0?'up':'down')+'>'+n+'亿</td></tr>';});
+    h2+='</table></div><div style=background:#0d1117;padding:8px;border-radius:5px;margin-bottom:6px><div style=font-size:12px;color:#3fb950;margin-bottom:4px;>📤 卖出前5</div><table><tr><th>#</th><th>营业部</th><th>买入额</th><th>卖出额</th><th>净额</th></tr>';
+    j.sell.forEach(function(r){var a=(+r.BUY/1e8).toFixed(2),s=(+r.SELL/1e8).toFixed(2),n=(+r.NET/1e8).toFixed(2);h2+='<tr><td>'+r.序号+'</td><td style=max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; title='+(r.OPERATEDEPT_NAME||'')+'>'+(r.OPERATEDEPT_NAME||'')+'</td><td style=color:#e74c3c>'+a+'亿</td><td style=color:#3fb950>'+s+'亿</td><td class='+(n>=0?'up':'down')+'>'+n+'亿</td></tr>';});
+    h2+='</table></div>';document.getElementById('lhbdata').innerHTML=h2;document.getElementById('lhbt').innerHTML=' — '+name+'('+code+') <span style=font-size:11px;color:#8b949e>实时</span>';}catch(e){}};
+  x.send();
+}catch(e){}
+
 // ===== 全部龙虎榜列表 =====
 var ul='<table><tr><th>代码</th><th>名称</th><th>解读</th><th>净额</th><th>方向</th></tr>';
 LHB.forEach(function(i){var b=i.desc.includes('买入')||i.desc.includes('主买'),s=i.desc.includes('卖出')||i.desc.includes('主卖');
 var hl=(i.code===code)?'style=background:#1f6feb22;':'';
 ul+='<tr '+hl+'><td>'+i.code+'</td><td>'+i.name+'</td><td>'+i.desc+'</td><td class='+(i.net>=0?'up':'down')+'>'+(i.net>0?'+':'')+(i.net/1e8).toFixed(2)+'亿</td><td class='+(b?'up':s?'down':'')+'>'+(b?'📥':s?'📤':'🔄')+'</td></tr>';});
-document.getElementById('lhbAll').innerHTML=ul+'</table>';}function loadKLine(code){var pfx=code.startsWith('6')?'sh':'sz';
+document.getElementById('lhbAll').innerHTML=ul+'</table>';}}function loadKLine(code){var pfx=code.startsWith('6')?'sh':'sz';
 try{var resp=await fetch('https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param='+pfx+code+',day,,,60,qfq');
 var data=await resp.json(),kd=data.data[pfx+code];
 var karr=kd?kd.qfqday||kd.day:null;
