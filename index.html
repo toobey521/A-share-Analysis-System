@@ -128,20 +128,23 @@ tr:hover{background:#1c2129;}
 <div id="sug" style="margin-top:8px;padding:8px;background:#0d1117;border-radius:5px;font-size:12px;line-height:1.6;"></div></div></div>
 
 <div class="panel" id="pcap">
-<div class="card"><h2>💰 资金 <span id="bigt" style="font-size:11px;color:#8b949e;font-weight:400;"></span></h2>
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;" id="bigGrid"></div>
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;" id="fundGrid"></div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-<div class="card" style="padding:8px;"><div style="font-size:11px;color:#58a6ff;margin-bottom:4px;">📊 资金拆分</div>
-<table style="width:100%;font-size:11px;"><tr><th>类型</th><th>买入</th><th>卖出</th><th>净额</th></tr>
-<tr><td>🏦 超大单</td><td id="bg_bigBuy" style="color:#e74c3c">--</td><td id="bg_bigSell" style="color:#3fb950">--</td><td id="bg_bigNet">--</td></tr>
-<tr><td>📦 大单</td><td id="bg_midBuy" style="color:#e74c3c">--</td><td id="bg_midSell" style="color:#3fb950">--</td><td id="bg_midNet">--</td></tr>
-<tr><td>📄 小单</td><td id="bg_smlBuy" style="color:#e74c3c">--</td><td id="bg_smlSell" style="color:#3fb950">--</td><td id="bg_smlNet">--</td></tr>
-<tr><td>🌐 北向资金</td><td id="bg_northBuy" style="color:#e74c3c">--</td><td id="bg_northSell" style="color:#3fb950">--</td><td id="bg_northNet">--</td></tr>
-</table></div>
-<div class="card" style="padding:8px;"><div style="font-size:11px;color:#58a6ff;margin-bottom:4px;">📈 资金强度</div>
-<div id="bgStrength" style="font-size:13px;line-height:1.8;">等待数据...</div></div></div>
-<div class="di2" id="capInfo">📡 基于盘口和成交数据估算</div></div></div>
+<div class="card"><h2>💰 资金</h2>
+<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;">
+  <div style="min-width:90px;flex:1;text-align:center;padding:6px;background:#0d1117;border-radius:5px;"><div style="font-size:10px;color:#8b949e;">主力净额</div><div style="font-size:16px;font-weight:700;" id="c_net">--</div></div>
+  <div style="min-width:90px;flex:1;text-align:center;padding:6px;background:#0d1117;border-radius:5px;"><div style="font-size:10px;color:#8b949e;">外盘/内盘</div><div style="font-size:16px;font-weight:700;" id="c_ratio">--</div></div>
+  <div style="min-width:90px;flex:1;text-align:center;padding:6px;background:#0d1117;border-radius:5px;"><div style="font-size:10px;color:#8b949e;">主买金额</div><div style="font-size:16px;font-weight:700;" id="c_buyAmt">--</div></div>
+  <div style="min-width:90px;flex:1;text-align:center;padding:6px;background:#0d1117;border-radius:5px;"><div style="font-size:10px;color:#8b949e;">主卖金额</div><div style="font-size:16px;font-weight:700;" id="c_sellAmt">--</div></div>
+  <div style="min-width:90px;flex:1;text-align:center;padding:6px;background:#0d1117;border-radius:5px;"><div style="font-size:10px;color:#8b949e;">外盘</div><div style="font-size:16px;font-weight:700;" id="c_ext">--</div></div>
+  <div style="min-width:90px;flex:1;text-align:center;padding:6px;background:#0d1117;border-radius:5px;"><div style="font-size:10px;color:#8b949e;">内盘</div><div style="font-size:16px;font-weight:700;" id="c_int">--</div></div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;">
+  <div style="min-width:90px;flex:1;text-align:center;padding:6px;background:#0d1117;border-radius:5px;"><div style="font-size:10px;color:#8b949e;">超大单买</div><div style="font-size:14px;font-weight:700;" id="c_bb">--</div></div>
+  <div style="min-width:90px;flex:1;text-align:center;padding:6px;background:#0d1117;border-radius:5px;"><div style="font-size:10px;color:#8b949e;">超大单卖</div><div style="font-size:14px;font-weight:700;" id="c_bs">--</div></div>
+  <div style="min-width:90px;flex:1;text-align:center;padding:6px;background:#0d1117;border-radius:5px;"><div style="font-size:10px;color:#8b949e;">北向</div><div style="font-size:14px;font-weight:700;" id="c_north">--</div></div>
+  <div style="min-width:90px;flex:1;text-align:center;padding:6px;background:#0d1117;border-radius:5px;"><div style="font-size:10px;color:#8b949e;">超大单净</div><div style="font-size:14px;font-weight:700;" id="c_bn">--</div></div>
+</div>
+<div class="card" style="padding:6px;"><div id="c_strength" style="font-size:12px;"></div></div>
+<div class="di2" id="capInfo">等待数据...</div></div></div>
 
 <div class="panel" id="plhb">
 <div class="card"><h2>🐯 龙虎榜 <span id="lhbt" style="font-size:11px;color:#8b949e;font-weight:400;"></span></h2>
@@ -617,45 +620,40 @@ function renderLHBAll(){
 function calcCap(p,pr,extVol,intVol,cp,am,op,hi,lo,vl,tr){
   var ba=extVol*pr*100,sa=intVol*pr*100,na=ba-sa,ra=extVol/(intVol||1);
   var b1=+p[10]||0,s1=+p[20]||0;
-  // bigGrid (3x2)
-  var eg=document.getElementById('bigGrid');
-  if(eg)eg.innerHTML=
-    '<div class=di><div class=l>主力净额</div><div class="v '+(na>=0?'up':'down')+'">'+(na>=0?'+':'')+(na/1e8).toFixed(2)+'亿</div></div>'+
-    '<div class=di><div class=l>外盘/内盘</div><div class="v '+(ra>=1?'up':'down')+'">'+ra.toFixed(2)+'</div></div>'+
-    '<div class=di><div class=l>主买金额</div><div class=v style=color:#e74c3c>'+(ba/1e8).toFixed(2)+'亿</div></div>'+
-    '<div class=di><div class=l>主卖金额</div><div class=v style=color:#3fb950>'+(sa/1e8).toFixed(2)+'亿</div></div>'+
-    '<div class=di><div class=l>外盘</div><div class=v style=color:#e74c3c>'+(extVol/10000).toFixed(1)+'万手</div></div>'+
-    '<div class=di><div class=l>内盘</div><div class=v style=color:#3fb950>'+(intVol/10000).toFixed(1)+'万手</div></div>';
-  // fundGrid (3x2)
   var bv=(+p[10]||0)+(+p[12]||0)+(+p[14]||0)+(+p[16]||0)+(+p[18]||0);
   var sv=(+p[20]||0)+(+p[22]||0)+(+p[24]||0)+(+p[26]||0)+(+p[28]||0);
-  var bb=Math.round(b1*pr*100),bs=Math.round(s1*pr*100),mb=Math.round(((bv-b1)/4||0)*pr*100);
-  var ms=Math.round(((sv-s1)/4||0)*pr*100);
-  var sb=Math.max(0,ba-bb-mb),ss=Math.max(0,sa-bs-ms);
-  var bn=bb-bs,mn=mb-ms,sn=sb-ss;
+  var bb=Math.round(b1*pr*100),bs=Math.round(s1*pr*100);
+  var mb=Math.round(((bv-b1)/4||0)*pr*100),ms=Math.round(((sv-s1)/4||0)*pr*100);
   var mc=+p[45]||0,nr=mc>1000?0.12:mc>200?0.06:0.03;
-  var nb=Math.round(ba*nr),ns=Math.round(sa*nr),nn=nb-ns;
-  var fg=document.getElementById('fundGrid');
-  if(fg)fg.innerHTML=
-    '<div class=di><div class=l>超大单</div><div class=v style=color:#e74c3c>'+(bb/1e8).toFixed(2)+'亿</div></div>'+
-    '<div class=di><div class=l>大单</div><div class=v style=color:#e74c3c>'+(mb/1e8).toFixed(2)+'亿</div></div>'+
-    '<div class=di><div class=l>小单</div><div class=v style=color:#e74c3c>'+(sb/1e8).toFixed(2)+'亿</div></div>'+
-    '<div class=di><div class=l>北向资金</div><div class=v style=color:'+(nn>=0?'#e74c3c':'#3fb950')+'>'+(nn>=0?'+':'')+(nn/1e8).toFixed(2)+'亿</div></div>'+
-    '<div class=di><div class=l>超大单净额</div><div class=v style=color:'+(bn>=0?'#e74c3c':'#3fb950')+'>'+(bn>=0?'+':'')+(bn/1e8).toFixed(2)+'亿</div></div>'+
-    '<div class=di><div class=l>买卖净额</div><div class=v style=color:'+(na>=0?'#e74c3c':'#3fb950')+'>'+(na>=0?'+':'')+(na/1e8).toFixed(2)+'亿</div></div>';
-  // 强度
-  var fl=na/1e8,bg='';
-  if(fl>2&&ra>1.3)bg='大资金强势介入';
-  else if(fl>0.5&&ra>1.1)bg='偏多';
-  else if(fl>-0.5)bg='均衡';
-  else if(fl>-2)bg='偏空';
-  else bg='资金出逃';
-  var bgEl=document.getElementById('bgStrength');
-  if(bgEl)bgEl.innerHTML=bg;
-  var bt=document.getElementById('bigt');
-  if(bt)bt.textContent='| '+new Date().toLocaleTimeString('zh-CN');
-  var ci=document.getElementById('capInfo');
-  if(ci)ci.textContent='外盘'+(extVol/10000).toFixed(1)+'万手 / 内盘'+(intVol/10000).toFixed(1)+'万手';
+  var nb=Math.round(ba*nr),ns=Math.round(sa*nr);
+  function setElem(id,val,isNet){
+    var el=document.getElementById(id);
+    if(!el)return;
+    var txt;
+    if(isNet)txt=(val>=0?'+':'')+(Math.abs(val)/1e8).toFixed(2);
+    else txt=(val/1e8).toFixed(2);
+    el.textContent=txt;
+    el.style.color=val>=0?'#e74c3c':'#3fb950';
+  }
+  setElem('c_net',na,true);setElem('c_ratio',ra,false);
+  setElem('c_buyAmt',ba,false);setElem('c_sellAmt',sa,false);
+  setElem('c_ext',extVol/10000,false);setElem('c_int',intVol/10000,false);
+  document.getElementById('c_ext').textContent=(extVol/10000).toFixed(1)+'WS';
+  document.getElementById('c_int').textContent=(intVol/10000).toFixed(1)+'WS';
+  setElem('c_bb',bb,false);setElem('c_bs',bs,false);
+  setElem('c_north',nb-ns,true);
+  var bn=bb-bs;setElem('c_bn',bn,true);
+  var se=document.getElementById('c_strength');
+  if(se){
+    var nd=nb>=ns?'净流入':'净流出';
+    var txt='';
+    if(Math.abs(na)>2e8&&ra>1.3)txt='[大资金强势介入] 超大单净额'+(bn>=0?'+':'')+(bn/1e8).toFixed(2)+'亿 北向'+nd+(Math.abs(nb-ns)/1e8).toFixed(2)+'亿';
+    else if(Math.abs(na)>0.5e8&&ra>1.1)txt='[偏多] 资金温和流入';
+    else if(Math.abs(na)<=0.5e8)txt='[均衡] 多空平衡';
+    else txt='[偏空] 注意风险';
+    se.textContent=txt;
+  }
+  document.getElementById('capInfo').textContent='外盘'+(extVol/10000).toFixed(1)+'万手 / 内盘'+(intVol/10000).toFixed(1)+'万手';
 }function showLHB(code,name){
 var items=LHB_LIVE.length>0?LHB_LIVE.filter(function(i){return (i['代码']||i.code)===code;}):LHB.filter(function(i){return i.code===code;});
 document.getElementById('lhbt').innerHTML=' — '+name+'('+code+')';
@@ -669,7 +667,7 @@ h+='<tr><td>'+i.name+'</td><td>'+i.desc+'</td><td class='+(i.net>=0?'up':'down')
 document.getElementById('lhbdata').innerHTML=h;}
 // 营业部明细
 var det=LHB_DET[code];
-if(items.length>0&&det){
+if(det){
 var dh='<div style=background:#0d1117;padding:8px;border-radius:5px;margin-top:8px;><div style=font-size:12px;color:#e74c3c;margin-bottom:4px;>📥 买入前5</div><table><tr><th>#</th><th>营业部</th><th>买入额</th><th>净额</th></tr>';
 det.buy.forEach(function(r){var a=(+r.买入金额/1e8).toFixed(2),n=(+r.净额/1e8).toFixed(2);
 dh+='<tr><td>'+r.序号+'</td><td style=max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; title='+r.交易营业部名称+'>'+r.交易营业部名称+'</td><td class=up>'+a+'亿</td><td class='+(n>=0?'up':'down')+'>'+n+'亿</td></tr>';});
