@@ -69,6 +69,9 @@ tr:hover{background:#1c2129;}
 <tr><td>💹 VWAP偏离</td><td id="t0vwap">--</td><td id="t0v_score">--</td></tr>
 <tr><td>⚡ 动量强度</td><td id="t0mom">--</td><td id="t0m_score">--</td></tr>
 <tr><td>🔊 量能异动</td><td id="t0vol">--</td><td id="t0vl_score">--</td></tr>
+<tr><td>🔄 主动买卖</td><td id="t0act">--</td><td id="t0a_score">--</td></tr>
+<tr><td>📏 振幅空间</td><td id="t0amp">--</td><td id="t0amp_score">--</td></tr>
+<tr><td>⏰ 时间窗口</td><td id="t0time_score">--</td><td id="t0tw_score">--</td></tr>
 </table></div></div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" class="s2">
 <div class="card" style="padding:8px;"><div style="font-size:11px;color:#58a6ff;margin-bottom:4px;">📋 操作建议</div>
@@ -369,14 +372,27 @@ document.getElementById('t0vl_score').textContent=(volScore>0?'+':'')+volScore;
 document.getElementById('t0vl_score').style.color=volScore>0?'#f85149':'#3fb950';
 
 // 新增因子显示
-// 外盘内盘
-var actEl=document.getElementById('t0act')||document.createElement('span');
-// 委托差
-var diffEl=document.getElementById('t0diff')||document.createElement('span');
-// 振幅
-var ampEl=document.getElementById('t0amp')||document.createElement('span');
-// 时间
-var timeEl=document.getElementById('t0time_extra')||document.createElement('span');
+document.getElementById('t0act').innerHTML='外盘'+extVol.toLocaleString()+' / 内盘'+intVol.toLocaleString()+' 比'+actRatio.toFixed(2);
+document.getElementById('t0act').style.color=actRatio>1?'#f85149':'#3fb950';
+document.getElementById('t0a_score').textContent=(actScore>0?'+':'')+actScore;
+document.getElementById('t0a_score').style.color=actScore>0?'#f85149':'#3fb950';
+
+document.getElementById('t0amp').innerHTML=ampRange.toFixed(2)+'%'+(ampRange>=4?'🔥':ampRange>=2.5?'📗':'');
+document.getElementById('t0amp').style.color=ampRange>=2.5?'#f85149':'#e6edf3';
+document.getElementById('t0amp_score').textContent=(ampScore>0?'+':'')+ampScore;
+document.getElementById('t0amp_score').style.color=ampScore>0?'#f85149':'#3fb950';
+
+var twDesc='';
+if(mins>=660&&mins<800)twDesc='黄金期+10';
+else if(mins>=800&&mins<870)twDesc='稳定期+5';
+else if(mins>=620&&mins<660)twDesc='观察期+3';
+else if(mins>=870&&mins<890)twDesc='⚠️只平仓-5';
+else if(mins>=890)twDesc='⛔禁开-15';
+else twDesc='竞价不稳定-10';
+document.getElementById('t0time_score').innerHTML=twDesc;
+document.getElementById('t0time_score').style.color=timeScore>=0?'#58a6ff':'#f85149';
+document.getElementById('t0tw_score').textContent=(timeScore>0?'+':'')+timeScore;
+document.getElementById('t0tw_score').style.color=timeScore>=0?'#f85149':'#3fb950';
 
 // ===== 动态建议 =====
 var advice='';
