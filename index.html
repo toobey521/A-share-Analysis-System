@@ -262,11 +262,28 @@ document.getElementById('t0vl_score').textContent=(volScore>0?'+':'')+volScore;
 document.getElementById('t0vl_score').style.color=volScore>0?'#f85149':'#3fb950';
 
 var advice='';
-if(total>=15)advice='🔴 建议：<b style=color:#f85149;>买入做T</b>，当前价格处于区间低位，盘口买盘强劲，可逢低建仓，拉高后卖出底仓。';
-else if(total>=5)advice='📗 建议：<b style=color:#f85149;>关注买点</b>，价格偏低但信号不够强，等待更多确认（放量+买盘增加）再入场。';
-else if(total>=-5)advice='⏸️ 建议：<b>观望</b>，价格处于中间位置，方向不明确，不建议操作。';
-else if(total>=-15)advice='📕 建议：<b style=color:#3fb950;>关注卖点</b>，价格偏高或有回落迹象，可考虑减仓，等低位接回。';
-else advice='🟢 建议：<b style=color:#3fb950;>卖出做T</b>，价格处于高位，盘口卖压明显，适合先卖后买。';
+if(total>=15){
+  var reasons=[];
+  if(posScore>=15)reasons.push('价格在区间低位');
+  if(orderScore>=10)reasons.push('盘口买盘偏强');
+  if(vwapScore>=8)reasons.push('价格低于均价');
+  if(cpScore>=10)reasons.push('跌幅较大有反弹预期');
+  if(volScore>=8)reasons.push('放量配合');
+  advice='🔴 买入做T。'+reasons.join('，')+'，可逢低建仓拉高卖出。';
+}else if(total>=5){
+  advice='📗 关注买点。信号偏多但不强，等待放量确认再入场。';
+}else if(total>=-5){
+  advice='⏸️ 观望。多空力量均衡，方向不明确，不建议操作。';
+}else if(total>=-15){
+  advice='📕 关注卖点。信号偏空但不强，有回落迹象可减仓，等低位接回。';
+}else{
+  var reasons=[];
+  if(posScore<=-15)reasons.push('价格在区间高位');
+  if(orderScore<=-10)reasons.push('盘口卖压偏重');
+  if(vwapScore<=-8)reasons.push('价格高于均价');
+  if(cpScore<=-8)reasons.push('涨幅较大有回落可能');
+  advice='🟢 卖出做T。'+reasons.join('，')+'，适合先卖后买。';
+}
 document.getElementById('t0advice').innerHTML=advice;
 
 var support1=Math.round((lo*0.99)*100)/100;
