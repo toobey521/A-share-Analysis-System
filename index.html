@@ -491,19 +491,24 @@ document.getElementById('t0speed').style.color=speedPerHour<0?'#f85149':'#3fb950
 document.getElementById('t0s_score').textContent=(speedScore>0?'+':'')+speedScore;
 document.getElementById('t0s_score').style.color=speedScore>0?'#f85149':'#3fb950';
 
-// ===== 支撑压力 =====
+// ===== 支撑压力(确保有序) =====
 var atr=ampRange*pr/100;
-var support1=Math.round((pr-atr*0.5)*100)/100;
-var support2=Math.round((op-atr*0.3)*100)/100;
-var support3=Math.round((lo)*100)/100;
-var resist1=Math.round((hi)*100)/100;
-var resist2=Math.round((op+atr*0.3)*100)/100;
-var resist3=Math.round((pr+atr*0.5)*100)/100;
-document.getElementById('t0levels').innerHTML='<b>支撑:</b> '+support3.toFixed(2)+'(极强) / '+support2.toFixed(2)+'(强) / '+support1.toFixed(2)+'(弱)<br>'+
-'<b>压力:</b> '+resist1.toFixed(2)+'(极强) / '+resist2.toFixed(2)+'(强) / '+resist3.toFixed(2)+'(弱)<br>'+
+// 支撑位（当前价下方，从小到大）
+var s3=Math.min(lo,pre*0.99);                                   // 极强支撑
+var s2=lo;                                                        // 今日最低
+var s1=Math.min(pr-atr*0.3, op*0.995);                           // 弱支撑
+// 压力位（当前价上方，从小到大）
+var r1=Math.max(hi, op*1.005);                                    // 弱压力
+var r2=hi;                                                        // 今日最高
+var r3=pr+atr*0.5;                                                // 强压力
+// 确保顺序不乱
+var supVals=[s3,s2,s1].sort(function(a,b){return a-b;});
+var resVals=[r1,r2,r3].sort(function(a,b){return a-b;});
+document.getElementById('t0levels').innerHTML='<b>支撑:</b> '+supVals[0].toFixed(2)+'(极强) / '+supVals[1].toFixed(2)+'(强) / '+supVals[2].toFixed(2)+'(弱)<br>'+
+'<b>压力:</b> '+resVals[0].toFixed(2)+'(弱) / '+resVals[1].toFixed(2)+'(强) / '+resVals[2].toFixed(2)+'(极强)<br>'+
 '<b>均价:</b> '+estVWAP.toFixed(2)+' | <b>振幅:</b> '+ampRange.toFixed(2)+'%<br>'+
 '<b>外/内:</b> '+actRatio.toFixed(2)+' | <b>换手:</b> '+tr+'%<br>'+
-'<b>开盘:</b> '+op.toFixed(2)+' | <b>缺口:</b> '+gapPct.toFixed(2)+'%';
+'<b>开盘:</b> '+op.toFixed(2)+' | <b>缺口:</b> '+gapPct.toFixed(2)+'% | <b>ATR:</b> '+atr.toFixed(2);
 }var LHB_LIVE=[];
 
 function fetchLiveLHB(){
