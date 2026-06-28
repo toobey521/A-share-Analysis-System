@@ -642,17 +642,26 @@ var h='<table><tr><th>股票</th><th>解读</th><th>净额</th><th>方向</th></
 items.forEach(function(i){var b=i.desc.includes('买入')||i.desc.includes('主买'),s=i.desc.includes('卖出')||i.desc.includes('主卖');
 h+='<tr><td>'+i.name+'</td><td>'+i.desc+'</td><td class='+(i.net>=0?'up':'down')+'>'+(i.net>0?'+':'')+(i.net/1e8).toFixed(2)+'亿</td><td class='+(b?'up':s?'down':'')+'>'+(b?'📥买入':s?'📤卖出':'🔄做T')+'</td></tr>';});
 document.getElementById('lhbdata').innerHTML=h;}
-// 营业部明细
-var det=LHB_DET[code];
-if(det){
+// 营业部明细 - 东财API实时数据
+var _rld=function(det){
+if(!det)return;
 var dh='<div style=background:#0d1117;padding:8px;border-radius:5px;margin-top:8px;><div style=font-size:12px;color:#e74c3c;margin-bottom:4px;>📥 买入前5</div><table><tr><th>#</th><th>营业部</th><th>买入额</th><th>净额</th></tr>';
-det.buy.forEach(function(r){var a=(+r.买入金额/1e8).toFixed(2),n=(+r.净额/1e8).toFixed(2);
-dh+='<tr><td>'+r.序号+'</td><td style=max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; title='+r.交易营业部名称+'>'+r.交易营业部名称+'</td><td class=up>'+a+'亿</td><td class='+(n>=0?'up':'down')+'>'+n+'亿</td></tr>';});
+det.buy.forEach(function(r,i){var a=(+r.买入金额/1e8).toFixed(2),n=(+r.净额/1e8).toFixed(2);dh+='<tr><td>'+(i+1)+'</td><td style=max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; title='+r.交易营业部名称+'>'+r.交易营业部名称+'</td><td class=up>'+a+'亿</td><td class='+(n>=0?'up':'down')+'>'+n+'亿</td></tr>';});
 dh+='</table></div><div style=background:#0d1117;padding:8px;border-radius:5px;margin-top:4px;><div style=font-size:12px;color:#3fb950;margin-bottom:4px;>📤 卖出前5</div><table><tr><th>#</th><th>营业部</th><th>卖出额</th><th>净额</th></tr>';
-det.sell.forEach(function(r){var a=(+r.买入金额/1e8).toFixed(2),n=(+r.净额/1e8).toFixed(2);
-dh+='<tr><td>'+r.序号+'</td><td style=max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; title='+r.交易营业部名称+'>'+r.交易营业部名称+'</td><td class=up>'+a+'亿</td><td class='+(n>=0?'up':'down')+'>'+n+'亿</td></tr>';});
-dh+='</table></div>';
-document.getElementById('lhbdata').innerHTML+=dh;}
+det.sell.forEach(function(r,i){var a=(+r.买入金额/1e8).toFixed(2),n=(+r.净额/1e8).toFixed(2);dh+='<tr><td>'+(i+1)+'</td><td style=max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; title='+r.交易营业部名称+'>'+r.交易营业部名称+'</td><td class=up>'+a+'亿</td><td class='+(n>=0?'up':'down')+'>'+n+'亿</td></tr>';});
+dh+='</table></div>';document.getElementById('lhbdata').innerHTML+=dh;};
+var _ub='https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPT_BILLBOARD_DAILYDETAILSBUY&columns=OPERATEDEPT_NAME,BUY,SELL,NET&filter=(SECURITY_CODE=%22';
+var _us='https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPT_BILLBOARD_DAILYDETAILSSELL&columns=OPERATEDEPT_NAME,BUY,SELL,NET&filter=(SECURITY_CODE=%22';
+fetch(_ub+code+'%22)&pageNumber=1&pageSize=5&sortTypes=-1&sortColumns=TRADE_DATE').then(function(r){return r.json();}).then(function(bd){
+var ba=bd.result&&bd.result.data||[];
+fetch(_us+code+'%22)&pageNumber=1&pageSize=5&sortTypes=-1&sortColumns=TRADE_DATE').then(function(r){return r.json();}).then(function(sd){
+var sa=sd.result&&sd.result.data||[];
+if(ba.length<1&&sa.length<1){_rld(LHB_DET[code]);return;}
+var dh='<div style=background:#0d1117;padding:8px;border-radius:5px;margin-top:8px;><div style=font-size:12px;color:#e74c3c;margin-bottom:4px;>📥 买入前5</div><table><tr><th>#</th><th>营业部</th><th>买入额</th><th>净额</th></tr>';
+ba.forEach(function(r,i){var a=(+r.BUY/1e8).toFixed(2),n=(+r.NET/1e8).toFixed(2);dh+='<tr><td>'+(i+1)+'</td><td style=max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; title='+r.OPERATEDEPT_NAME+'>'+r.OPERATEDEPT_NAME+'</td><td class=up>'+a+'亿</td><td class='+(n>=0?'up':'down')+'>'+n+'亿</td></tr>';});
+dh+='</table></div><div style=background:#0d1117;padding:8px;border-radius:5px;margin-top:4px;><div style=font-size:12px;color:#3fb950;margin-bottom:4px;>📤 卖出前5</div><table><tr><th>#</th><th>营业部</th><th>卖出额</th><th>净额</th></tr>';
+sa.forEach(function(r,i){var a=(+r.SELL/1e8).toFixed(2),n=(+r.NET/1e8).toFixed(2);dh+='<tr><td>'+(i+1)+'</td><td style=max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; title='+r.OPERATEDEPT_NAME+'>'+r.OPERATEDEPT_NAME+'</td><td class=up>'+a+'亿</td><td class='+(n>=0?'up':'down')+'>'+n+'亿</td></tr>';});
+dh+='</table></div>';document.getElementById('lhbdata').innerHTML+=dh;});});
 // 全部龙虎榜
 var ul='<table><tr><th>代码</th><th>名称</th><th>解读</th><th>净额</th><th>方向</th></tr>';
 LHB.forEach(function(i){var b=i.desc.includes('买入')||i.desc.includes('主买'),s=i.desc.includes('卖出')||i.desc.includes('主卖');
@@ -714,7 +723,7 @@ if(!harr||harr.length<5){document.getElementById('cmpInfo').textContent='沪深3
 var h=harr.map(function(r){return+r[4];});
 var hchg=((h[h.length-1]/h[0]-1)*100).toFixed(2),diff=(chg-hchg).toFixed(2);
 document.getElementById('cmpInfo').innerHTML='本股 <b>'+chg+'%</b> | 沪深300 <b>'+hchg+'%</b> | 强弱 <b>'+(diff>0?'📈跑赢':'📉跑输')+' '+Math.abs(diff)+'%</b>';
-document.getElementById('cmpData').innerHTML='<div class=di><div class=l>起始价</div><div class=v>'+c[0].toFixed(2)+'</div></div><div class=di><div class=l>最新价</div><div class="v '+(chg>=0?'up':'down')+'\">'+c[c.length-1].toFixed(2)+'</div></div><div class=di><div class=l>本股涨幅</div><div class="v '+(chg>=0?'up':'down')+'\">'+chg+'%</div></div><div class=di><div class=l>HS300涨幅</div><div class="v '+(hchg>=0?'up':'down')+'\">'+hchg+'%</div></div><div class=di><div class=l>60日最高</div><div class="v up">'+Math.max.apply(null,c).toFixed(2)+'</div></div><div class=di><div class=l>60日最低</div><div class="v down">'+Math.min.apply(null,c).toFixed(2)+'</div></div>';})
+document.getElementById('cmpData').innerHTML='<div class=di><div class=l>起始价</div><div class=v>'+c[0].toFixed(2)+'</div></div><div class=di><div class=l>最新价</div><div class="v '+(chg>=0?'up':'down')+'\">'+(+(document.getElementById('pprice').textContent)||c[c.length-1]).toFixed(2)+'</div></div><div class=di><div class=l>本股涨幅</div><div class="v '+(chg>=0?'up':'down')+'\">'+chg+'%</div></div><div class=di><div class=l>HS300涨幅</div><div class="v '+(hchg>=0?'up':'down')+'\">'+hchg+'%</div></div><div class=di><div class=l>60日最高</div><div class="v up">'+(Math.max(+(document.getElementById('pprice').textContent)||0,Math.max.apply(null,c))).toFixed(2)+'</div></div><div class=di><div class=l>60日最低</div><div class="v down">'+(Math.min(+(document.getElementById('pprice').textContent)||99999,Math.min.apply(null,c))).toFixed(2)+'</div></div>';})
 ['catch'](function(){document.getElementById('cmpInfo').textContent='对比加载失败';});}
 
 function loadIdx(){var sc=document.createElement('script');sc.src='https://qt.gtimg.cn/q=sh000001,sz399001,sz399006,sh000300,sh000688';
