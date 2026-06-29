@@ -688,7 +688,7 @@ window._karr=karr;window._pfxCode=pfx+code;
 if(!karr||karr.length<5){document.getElementById('techSt').innerHTML='<span style=color:#f85149;>数据不足</span>';showSimple();return;}
 document.getElementById('techSt').innerHTML='<span style=color:#3fb950;>✔</span> '+karr.length+'天';
 renderFlow5(karr,qtData,true);
-var c=karr.map(function(r){return+r[4];}),lc=c[c.length-1];
+var c=karr.map(function(r){return+r[2];}),lc=c[c.length-1];
 setMA(c,5,'ma5',lc);setMA(c,10,'ma10',lc);setMA(c,20,'ma20',lc);setMA(c,60,'ma60',lc);
 checkMA5Signal(c);
 var e12=[c[0]],e26=[c[0]];
@@ -729,12 +729,12 @@ for(var _i2=0,_a2=['ma5s','ma10s','ma20s','ma60s','macds','mbars','r6s','r14s','
 
 function drawCmp(karr){
 if(!karr||karr.length<5){document.getElementById('cmpInfo').textContent='数据不足';return;}
-var c=karr.map(function(r){return+r[4];}),chg=((c[c.length-1]/c[0]-1)*100).toFixed(2);
+var c=karr.map(function(r){return+r[2];}),chg=((c[c.length-1]/c[0]-1)*100).toFixed(2);
 c_cmp=c;document.getElementById('cmpInfo').innerHTML='本股60日涨幅: '+chg+'% | 获取沪深300对比...';
 fetch('https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh000300,day,,,60,qfq').then(function(r){return r.json();}).then(function(d){
 var raw2=d.data.sh000300;var harr=raw2?raw2.qfqday||raw2.day:null;
 if(!harr||harr.length<5){document.getElementById('cmpInfo').textContent='沪深300数据不足';return;}
-var h=harr.map(function(r){return+r[4];});
+var h=harr.map(function(r){return+r[2];});
 var hchg=((h[h.length-1]/h[0]-1)*100).toFixed(2),diff=(chg-hchg).toFixed(2);
 document.getElementById('cmpInfo').innerHTML='本股 <b>'+chg+'%</b> | 沪深300 <b>'+hchg+'%</b> | 强弱 <b>'+(diff>0?'📈跑赢':'📉跑输')+' '+Math.abs(diff)+'%</b>';
 document.getElementById('cmpData').innerHTML='<div class=di><div class=l>起始价</div><div class=v id=cmpStart>'+c[0].toFixed(2)+'</div></div><div class=di><div class=l>最新价</div><div class=\"v '+(chg>=0?'up':'down')+'\\\" id=cmpPrice>'+(_curPrice||c[c.length-1]).toFixed(2)+'</div></div><div class=di><div class=l>本股涨幅</div><div class=\"v '+(chg>=0?'up':'down')+'\\\">'+chg+'%</div></div><div class=di><div class=l>HS300涨幅</div><div class=\"v '+(hchg>=0?'up':'down')+'\\\">'+hchg+'%</div></div><div class=di><div class=l>60日最高</div><div class=\"v up\\\" id=cmpHigh>'+Math.max(_curPrice||0,Math.max.apply(null,c)).toFixed(2)+'</div></div><div class=di><div class=l>60日最低</div><div class=\"v down\\\" id=cmpLow>'+Math.min(_curPrice||99999,Math.min.apply(null,c)).toFixed(2)+'</div></div>';
