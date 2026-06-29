@@ -683,9 +683,11 @@ async function loadKLine(code){var pfx=code.startsWith('6')?'sh':'sz';
 try{var resp=await fetch('https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param='+pfx+code+',day,,,60,qfq');
 var data=await resp.json(),kd=data.data[pfx+code];
 var karr=kd?kd.qfqday||kd.day:null;
+var qtData=kd?kd.qt:null;
+window._karr=karr;window._pfxCode=pfx+code;
 if(!karr||karr.length<5){document.getElementById('techSt').innerHTML='<span style=color:#f85149;>数据不足</span>';showSimple();return;}
 document.getElementById('techSt').innerHTML='<span style=color:#3fb950;>✔</span> '+karr.length+'天';
-renderFlow5(karr);
+renderFlow5(karr,qtData,true);
 var c=karr.map(function(r){return+r[4];}),lc=c[c.length-1];
 setMA(c,5,'ma5',lc);setMA(c,10,'ma10',lc);setMA(c,20,'ma20',lc);setMA(c,60,'ma60',lc);
 checkMA5Signal(c);
@@ -836,22 +838,14 @@ document.querySelectorAll('.nav button').forEach(function(b){b.classList.remove(
 var idx={'t0':0,'tech':1,'score':2,'cap':3,'lhb':4,'cmp':5};
 if(document.querySelectorAll('.nav button')[idx[n]])document.querySelectorAll('.nav button')[idx[n]].classList.add('active');}
 
-function renderFlow5(karr){
-  if(!karr||karr.length<5)return;
-  var last5=karr.slice(-5);
-  var maxAbs=0,flows=[];
-  last5.forEach(function(r){
-    var op=+r[1],cl=+r[2],vol=+r[5]||0; // [1]=open [2]=close [5]=volume(手)
-    var flow=vol*100*(cl-op); // 金额(元): 手×100股×(收盘-开盘)
-    if(Math.abs(flow)>maxAbs)maxAbs=Math.abs(flow);
-    flows.push({date:r[0],flow:flow});
-  });
+function getDateStr(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}
+function renderFlow5Chart(flows,maxAbs){
   if(maxAbs===0){document.getElementById('flow5Chart').innerHTML='<div style=text-align:center;padding:40px 0;color:#8b949e;font-size:12px;>数据不足</div>';return;}
   var h='<div style="position:relative;height:100%;"><div style="position:absolute;top:50%;left:0;right:0;border-top:1px solid #30363d;z-index:0;"></div><div style="display:flex;height:100%;align-items:center;gap:4px;padding:0 6px;position:relative;z-index:1;">';
   flows.forEach(function(f){
     var pct=Math.abs(f.flow)/maxAbs*70;
     var barH=Math.max(3,pct);
-    var isPos=f.flow>=0,color=isPos?'#f85149':'#3fb950';
+    var isPos=f.flow>=0,color=isPos?'#e74c3c':'#3fb950';
     var val=(Math.abs(f.flow)/1e8).toFixed(2);
     h+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;">';
     h+='<div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;width:100%;align-items:center;">';
@@ -868,7 +862,51 @@ function renderFlow5(karr){
   h+='</div></div>';
   document.getElementById('flow5Chart').innerHTML=h;
   var total=flows.reduce(function(s,f){return s+f.flow;},0);
-  document.getElementById('flow5Info').innerHTML='5日合计: <b style=color:'+(total>=0?'#f85149>+':'#3fb950>')+(total/1e8).toFixed(2)+'亿</b> | 近5日 '+(total>=0?'📈净流入':'📉净流出');
+  document.getElementById('flow5Info').innerHTML='5日合计: <b style=color:'+(total>=0?'#e74c3c>+':'#3fb950>')+(total/1e8).toFixed(2)+'亿</b> | 近5日 '+(total>=0?'📈净流入':'📉净流出');
 }
-search();loadIdx();setTimeout(fetchLiveLHB,2000);setInterval(function(){loadRT(curCode);loadIdx();},1000);</script>
+async function renderFlow5(karr,qtData,initial){
+  if(!karr||karr.length<5)return;
+  // 后续刷新直接用最新实时行情中的外盘/内盘计算今日
+  var liveQt=null;
+  if(!initial&&window._pfxCode){
+    var v=window['v_'+window._pfxCode];
+    if(v&&v.length>20)liveQt=v.split('~');
+  }
+  var todayQt=liveQt||qtData;
+  // 优先使用东方财富主力资金流历史数据（与资金页面口径一致）
+  try{
+    var mkt=curCode.startsWith('6')?1:0;
+    var resp=await fetch('https://push2his.eastmoney.com/api/qt/stock/fflow/daykline/get?secid='+mkt+'.'+curCode+'&fields1=f1,f2,f3,f7&fields2=f51,f52,f53,f54,f55,f56&lmt=5');
+    var d=await resp.json();
+    if(d&&d.data&&d.data.klines&&d.data.klines.length>0){
+      var his=d.data.klines,todayStr=getDateStr(),hasToday=false;
+      var flows=[],maxAbs=0;
+      his.forEach(function(k){
+        var parts=k.split(','),date=parts[0];
+        if(date===todayStr)hasToday=true;
+        var flow=+parts[1]||0;if(Math.abs(flow)>maxAbs)maxAbs=Math.abs(flow);
+        flows.push({date:date,flow:flow});
+      });
+      // 当日不在历史中（盘中），用实时行情外盘-内盘计算
+      if(!hasToday&&todayQt){
+        var extVol=+todayQt[7]||0,intVol=+todayQt[8]||0,price=+todayQt[3]||0;
+        var todayFlow=(extVol-intVol)*price*100;
+        if(Math.abs(todayFlow)>maxAbs)maxAbs=Math.abs(todayFlow);
+        flows.push({date:todayStr,flow:todayFlow});
+      }
+      if(flows.length>5)flows=flows.slice(-5);
+      renderFlow5Chart(flows,maxAbs);return;
+    }
+  }catch(e){}
+  // 备用：K线成交量×(收盘-开盘)
+  var last5=karr.slice(-5),maxAbs=0,flows=[];
+  last5.forEach(function(r){
+    var op=+r[1],cl=+r[2],vol=+r[5]||0;
+    var flow=vol*100*(cl-op);
+    if(Math.abs(flow)>maxAbs)maxAbs=Math.abs(flow);
+    flows.push({date:r[0],flow:flow});
+  });
+  renderFlow5Chart(flows,maxAbs);
+}
+search();loadIdx();setTimeout(fetchLiveLHB,2000);setInterval(function(){loadRT(curCode);loadIdx();},1000);setInterval(function(){if(window._karr)renderFlow5(window._karr,null,false);},5000);</script>
 <div style="margin-top:16px;padding:10px 14px;background:#161b22;border:1px solid #30363d;border-radius:8px;font-size:12px;color:#f59e0b;text-align:center;">⚠️ 风险提示：本工具仅作交流学习使用，据此交易，风险自担</div></body></html>
