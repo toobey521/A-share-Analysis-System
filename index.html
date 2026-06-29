@@ -46,6 +46,7 @@ tr:hover{background:#1c2129;}
 <div class="pr"><div><span class="pn" id="pname">--</span> <span class="pp" id="pprice">--</span> <span class="pc" id="pchg">--</span></div>
 <div style="text-align:right;font-size:11px;color:#8b949e;">开 <span id="pop">--</span> 昨收 <span id="ppre">--</span></div></div>
 <div class="tags" id="tags"></div>
+<div id="maSignal" style="padding:6px 10px;border-radius:5px;margin:6px 0;font-size:12px;font-weight:600;display:none;"></div>
 <div class="dg" id="det"></div>
 <div class="di2" id="dinfo">📡 加载中...</div></div>
 
@@ -687,6 +688,7 @@ document.getElementById('techSt').innerHTML='<span style=color:#3fb950;>✔</spa
 renderFlow5(karr);
 var c=karr.map(function(r){return+r[4];}),lc=c[c.length-1];
 setMA(c,5,'ma5',lc);setMA(c,10,'ma10',lc);setMA(c,20,'ma20',lc);setMA(c,60,'ma60',lc);
+checkMA5Signal(c);
 var e12=[c[0]],e26=[c[0]];
 for(var i=1;i<c.length;i++){e12.push(e12[i-1]*11/13+c[i]*2/13);e26.push(e26[i-1]*25/27+c[i]*2/27);}
 var dif=e12[e12.length-1]-e26[e26.length-1];
@@ -793,6 +795,28 @@ function drawCmpChart(stock,hs300,dates,schg,hchg){
   document.getElementById('cmpChartInfo').textContent='本股'+schg+'% | 沪深300 '+hchg+'%';
 }
 
+function checkMA5Signal(c){
+  var sig=document.getElementById('maSignal');if(!sig)return;
+  if(!c||c.length<6){sig.style.display='none';return;}
+  var last=c[c.length-1];
+  var ma5=c.slice(-5).reduce(function(s,v){return s+v;},0)/5;
+  var ma5_prev=c.slice(-6,-1).reduce(function(s,v){return s+v;},0)/5;
+  if(last>ma5&&ma5>ma5_prev){
+    sig.style.display='block';
+    sig.style.background='rgba(248,81,73,0.12)';
+    sig.style.border='1px solid rgba(248,81,73,0.3)';
+    sig.style.color='#f85149';
+    sig.innerHTML='📈 MA5趋势信号: <b>买入</b> — 收盘'+last.toFixed(2)+' > MA5('+ma5.toFixed(2)+')，MA5上行，短线偏多';
+  }else{
+    sig.style.display='block';
+    sig.style.background='rgba(63,185,80,0.1)';
+    sig.style.border='1px solid rgba(63,185,80,0.25)';
+    sig.style.color='#3fb950';
+    var reason=last<=ma5?'收盘'+last.toFixed(2)+' < MA5('+ma5.toFixed(2)+')':'MA5走平或下行';
+    sig.innerHTML='📉 MA5趋势信号: <b>持币/卖出</b> — '+reason+'，短线不宜入场';
+  }
+}
+
 function loadIdx(){
   function renderIdx(){
     var ids=[['sh000001','ST上证'],['sz399001','ST深成'],['sh000688','纳斯科创50'],['sz399006','纳斯创业'],['sh000300','HS300'],['sh000905','中证500'],['bj899050','北证50'],['sh000016','上证50']],h='';
@@ -801,9 +825,9 @@ function loadIdx(){
     if(h)document.getElementById('idxg').innerHTML=h;
   }
   var sc=document.createElement('script');sc.src='https://qt.gtimg.cn/q=sh000001,sz399001,sz399006,sh000300,sh000688,sh000905,bj899050,sh000016';
-  sc.onload=function(){setTimeout(renderIdx,500);};
+  sc.onload=function(){setTimeout(renderIdx,500);setTimeout(function(){try{document.head.removeChild(sc)}catch(e){}},3000);};
   document.head.appendChild(sc);
-  setTimeout(renderIdx,3000); // fallback
+  setTimeout(renderIdx,3000);
 }
 
 function sw(n){document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
@@ -846,5 +870,5 @@ function renderFlow5(karr){
   var total=flows.reduce(function(s,f){return s+f.flow;},0);
   document.getElementById('flow5Info').innerHTML='5日合计: <b style=color:'+(total>=0?'#f85149>+':'#3fb950>')+(total/1e8).toFixed(2)+'亿</b> | 近5日 '+(total>=0?'📈净流入':'📉净流出');
 }
-search();loadIdx();setTimeout(fetchLiveLHB,2000);setInterval(function(){loadRT(curCode);},30000);</script>
+search();loadIdx();setTimeout(fetchLiveLHB,2000);setInterval(function(){loadRT(curCode);loadIdx();},1000);</script>
 <div style="margin-top:16px;padding:10px 14px;background:#161b22;border:1px solid #30363d;border-radius:8px;font-size:12px;color:#f59e0b;text-align:center;">⚠️ 风险提示：本工具仅作交流学习使用，据此交易，风险自担</div></body></html>
