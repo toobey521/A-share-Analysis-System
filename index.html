@@ -893,19 +893,12 @@ function renderFlow5(karr,qtData,initial){
     var extVol=+todayQt[7]||0,intVol=+todayQt[8]||0,price=+todayQt[3]||0;
     var todayFlow=(extVol-intVol)*price*100;
     if(Math.abs(todayFlow)>maxAbs)maxAbs=Math.abs(todayFlow);
-    if(!hasToday)flows.push({date:todayStr,flow:todayFlow});
-    else{
-      // 替换历史估算为今日精确数据
-      for(var i=0;i<flows.length;i++){
-        if(flows[i].date===todayStr){
-          flows[i].flow=todayFlow;break;
-        }
-      }
-    }
+    // 不管今日是否在K线中，都追加（forEach中已跳过今日不添加）
+    flows.push({date:todayStr,flow:todayFlow});
   }
   
   if(flows.length>5)flows=flows.slice(-5);
-  if(flows.length<3){
+  if(flows.length<5){
     // 备用：全部用K线
     last5.forEach(function(r){
       var op=+r[1],cl=+r[2],vol=+r[5]||0;
